@@ -29,10 +29,10 @@ public class Aircrafts {
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "aircraft_seats", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "aircrafts", cascade = CascadeType.ALL)
     private List<AircraftSeats> seats;
 
-    @OneToMany(mappedBy = "flight_schedules", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "aircrafts", cascade = CascadeType.ALL)
     private List<FlightSchedules> schedules;
 
     public Aircrafts() {

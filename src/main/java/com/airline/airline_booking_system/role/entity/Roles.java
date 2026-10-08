@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 @Table(name = "roles")
 public class Roles {
     @Id
+    @Column(name = "id", length = 36, columnDefinition = "CHAR(36)")
     private String id;
 
     @Column(nullable = false)

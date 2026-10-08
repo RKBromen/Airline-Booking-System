@@ -26,8 +26,11 @@ public class Airports {
     private String city;
     private String country;
 
-    @OneToMany(mappedBy = "airport", cascade = CascadeType.ALL)
-    private List<Flights> flights;
+    @OneToMany(mappedBy = "departure_airport_id", cascade = CascadeType.ALL)
+    private List<Flights> departureFlights;
+
+    @OneToMany(mappedBy = "arrival_airport_id", cascade = CascadeType.ALL)
+    private List<Flights> arrivalFlights;
 
     public enum AirportsStatus {
         ACTIVE, BLOCKED, DELETED

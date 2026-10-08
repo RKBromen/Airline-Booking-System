@@ -5,6 +5,8 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -19,7 +21,7 @@ public class AircraftSeats {
     @Id
     private String id;
     @ManyToOne
-    @JoinColumn(name = "aircrafts_id", nullable = false)
+    @JoinColumn(name = "aircraft_id", nullable = false)
     private Aircrafts aircrafts;
     @Column(nullable = false)
     private String seat_number;
@@ -28,10 +30,11 @@ public class AircraftSeats {
         ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
     }
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_class", nullable = false)
     private SeatClass seat_class;
 
-    @OneToMany(mappedBy = "aircraft_seats", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "seats", cascade = CascadeType.ALL)
     private List<FlightSeats> seats;
 
     public AircraftSeats() {

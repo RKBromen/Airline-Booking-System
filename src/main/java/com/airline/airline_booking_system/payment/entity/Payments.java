@@ -6,6 +6,8 @@ import com.airline.airline_booking_system.booking.entity.Bookings;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,6 +26,7 @@ public class Payments {
         VNPAY, MOMO, CREDIT_CARD, BANK_TRANSFER
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentMethod payment_method;
     @Column(nullable = false)
@@ -33,6 +36,7 @@ public class Payments {
         PENDING, SUCCESS, FAILED, REFUNDED
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;
     private String transaction_id;

@@ -18,12 +18,13 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 public class Users {
     @Id
+    @Column(name = "id", length = 36, columnDefinition = "CHAR(36)")
     private String id;
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
-    @Column(nullable = false)
+    @Column(name = "full_name", nullable = false, length = 150)
     private String full_name;
 
     public enum UserStatus {
@@ -33,9 +34,9 @@ public class Users {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime created_at;
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updated_at;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

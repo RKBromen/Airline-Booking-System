@@ -1,9 +1,12 @@
 package com.airline.airline_booking_system.booking.entity;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -20,16 +23,17 @@ public class BookingPassengers {
     @JoinColumn(name = "booking_id", nullable = false)
     private Bookings bookings;
     @ManyToOne
-    @JoinColumn(name = "flight_seat_id", nullable = false)
+    @JoinColumn(name = "flight_seat_id")
     private FlightSeats flightSeats;
     @Column(nullable = false)
     private String full_name;
-    private LocalDateTime date_of_birth;
+    private LocalDate date_of_birth;
 
     public enum Gender {
         MALE, FEMALE, OTHER
     }
 
+    @Enumerated(EnumType.STRING)
     private Gender gender;
     private String document_number;
     private LocalDateTime created_at;
@@ -38,7 +42,7 @@ public class BookingPassengers {
     }
 
     public BookingPassengers(String id, Bookings bookings, FlightSeats flightSeats, String full_name,
-            LocalDateTime date_of_birth, Gender gender, String document_number, LocalDateTime created_at) {
+            LocalDate date_of_birth, Gender gender, String document_number, LocalDateTime created_at) {
         this.id = id;
         this.bookings = bookings;
         this.flightSeats = flightSeats;
@@ -81,11 +85,11 @@ public class BookingPassengers {
         this.full_name = full_name;
     }
 
-    public LocalDateTime getDate_of_birth() {
+    public LocalDate getDate_of_birth() {
         return date_of_birth;
     }
 
-    public void setDate_of_birth(LocalDateTime date_of_birth) {
+    public void setDate_of_birth(LocalDate date_of_birth) {
         this.date_of_birth = date_of_birth;
     }
 

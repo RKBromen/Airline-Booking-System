@@ -8,6 +8,8 @@ import com.airline.airline_booking_system.airport.entity.Airports;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,21 +24,22 @@ public class Flights {
     @Column(nullable = false, unique = true)
     private String flight_number;
     @ManyToOne
-    @JoinColumn(name = "airport_id", nullable = false, unique = true)
+    @JoinColumn(name = "departure_airport_id", nullable = false)
     private Airports departure_airport_id;
     @ManyToOne
-    @JoinColumn(name = "airport_id", nullable = false, unique = true)
+    @JoinColumn(name = "arrival_airport_id", nullable = false)
     private Airports arrival_airport_id;
 
     public enum FlightStatus {
         ACTIVE, INACTIVE
     }
 
+    @Enumerated(EnumType.STRING)
     private FlightStatus status;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "flights", cascade = CascadeType.ALL)
     private List<FlightSchedules> schedules;
 
     public Flights() {

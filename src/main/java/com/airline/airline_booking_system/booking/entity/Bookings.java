@@ -3,11 +3,13 @@ package com.airline.airline_booking_system.booking.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.apache.catalina.User;
+import com.airline.airline_booking_system.user.entity.Users;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,7 +28,7 @@ public class Bookings {
     private String booking_code;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name = "flight_schedule_id", nullable = false)
@@ -36,6 +38,7 @@ public class Bookings {
         PENDING, CONFIRMED, CANCELLED, EXPIRED
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
     @Column(nullable = false)
@@ -46,19 +49,19 @@ public class Bookings {
     @Column(nullable = false)
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<FlightSeats> seats;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<BookingPassengers> passengers;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<Payments> payments;
 
     public Bookings() {
     }
 
-    public Bookings(String id, String booking_code, User user, FlightSchedules flightSchedules, BookingStatus status,
+    public Bookings(String id, String booking_code, Users user, FlightSchedules flightSchedules, BookingStatus status,
             float total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;
         this.booking_code = booking_code;
@@ -87,11 +90,11 @@ public class Bookings {
         this.booking_code = booking_code;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 

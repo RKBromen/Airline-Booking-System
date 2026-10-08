@@ -36,11 +36,13 @@ CREATE TABLE user_roles (
 
     CONSTRAINT fk_user_roles_users
         FOREIGN KEY (user_id)
-        REFERENCES users(id),
+        REFERENCES users(id)
+        ON DELETE CASCADE,
 
     CONSTRAINT fk_user_roles_roles
         FOREIGN KEY (role_id)
         REFERENCES roles(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE airports (
@@ -119,7 +121,7 @@ CREATE TABLE flights (
         ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_flights_departure_airports
-        FOREIGN KEY (departure_airports_id)
+        FOREIGN KEY (departure_airport_id)
         REFERENCES airports(id),
 
     CONSTRAINT fk_flights_arrival_airports
@@ -130,7 +132,7 @@ CREATE TABLE flights (
         CHECK (departure_airport_id <> arrival_airport_id),
     
     CONSTRAINT uk_flights_flight_number 
-	    UNIQUE (flight_number)
+	    UNIQUE (flight_number),
 	    
 	CONSTRAINT uk_flights_route 
 		UNIQUE (departure_airport_id, arrival_airport_id)
@@ -172,7 +174,7 @@ CREATE TABLE flight_schedules (
         CHECK (arrival_time > departure_time),
 
     CONSTRAINT chk_flight_schedule_price
-        CHECK (base_price >= 0),
+        CHECK (base_price >= 0)
 
 );
 
@@ -211,7 +213,7 @@ CREATE TABLE bookings (
         REFERENCES flight_schedules(id),
 
     CONSTRAINT chk_booking_amount
-        CHECK (total_amount >= 0),
+        CHECK (total_amount >= 0)
 
 );
 
@@ -251,7 +253,7 @@ CREATE TABLE flight_seats (
         ),
 
     CONSTRAINT chk_flight_seat_price
-        CHECK (price >= 0),
+        CHECK (price >= 0)
 
 );
 
@@ -320,7 +322,7 @@ CREATE TABLE payments (
         REFERENCES bookings(id),
 
     CONSTRAINT chk_payment_amount
-        CHECK (amount >= 0),
+        CHECK (amount >= 0)
 );
 
 
@@ -358,18 +360,3 @@ ON payments(
     booking_id,
     created_at
 );
-
-
-ALTER TABLE user_roles
-    DROP FOREIGN KEY fk_user_roles_users,
-    DROP FOREIGN KEY fk_user_roles_roles,
-
-    ADD CONSTRAINT fk_user_roles_users
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE,
-
-    ADD CONSTRAINT fk_user_roles_roles
-        FOREIGN KEY (role_id)
-        REFERENCES roles(id)
-        ON DELETE CASCADE;
