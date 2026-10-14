@@ -13,7 +13,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "flights")
 public class Flights {
@@ -22,11 +26,11 @@ public class Flights {
     @Column(nullable = false, unique = true)
     private String flight_number;
     @ManyToOne
-    @JoinColumn(name = "airport_id", nullable = false, unique = true)
-    private Airports departure_airport_id;
+    @JoinColumn(name = "departure_airport_id", nullable = false, unique = true)
+    private Airports departure_airport;
     @ManyToOne
-    @JoinColumn(name = "airport_id", nullable = false, unique = true)
-    private Airports arrival_airport_id;
+    @JoinColumn(name = "arrival_airport_id", nullable = false, unique = true)
+    private Airports arrival_airport;
 
     public enum FlightStatus {
         ACTIVE, INACTIVE
@@ -36,76 +40,18 @@ public class Flights {
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "flights", cascade = CascadeType.ALL)
     private List<FlightSchedules> schedules;
 
-    public Flights() {
-    }
-
-    public Flights(String id, String flight_number, Airports departure_airport_id, Airports arrival_airport_id,
-            FlightStatus status, LocalDateTime created_at, LocalDateTime updated_at) {
+    public Flights(String id, String flight_number, Airports departure_airport, Airports arrival_airport,
+            FlightStatus status, LocalDateTime created_at, LocalDateTime updated_at, List<FlightSchedules> schedules) {
         this.id = id;
         this.flight_number = flight_number;
-        this.departure_airport_id = departure_airport_id;
-        this.arrival_airport_id = arrival_airport_id;
+        this.departure_airport = departure_airport;
+        this.arrival_airport = arrival_airport;
         this.status = status;
         this.created_at = created_at;
         this.updated_at = updated_at;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getFlight_number() {
-        return flight_number;
-    }
-
-    public void setFlight_number(String flight_number) {
-        this.flight_number = flight_number;
-    }
-
-    public Airports getDeparture_airport_id() {
-        return departure_airport_id;
-    }
-
-    public void setDeparture_airport_id(Airports departure_airport_id) {
-        this.departure_airport_id = departure_airport_id;
-    }
-
-    public Airports getArrival_airport_id() {
-        return arrival_airport_id;
-    }
-
-    public void setArrival_airport_id(Airports arrival_airport_id) {
-        this.arrival_airport_id = arrival_airport_id;
-    }
-
-    public FlightStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FlightStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
+        this.schedules = schedules;
     }
 }

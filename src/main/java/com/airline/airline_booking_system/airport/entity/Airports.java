@@ -11,9 +11,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import com.airline.airline_booking_system.flight.entity.*;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "airports")
 public class Airports {
@@ -26,8 +30,10 @@ public class Airports {
     private String city;
     private String country;
 
-    @OneToMany(mappedBy = "airport", cascade = CascadeType.ALL)
-    private List<Flights> flights;
+    @OneToMany(mappedBy = "departure_airport", cascade = CascadeType.ALL)
+    private List<Flights> departure_airport;
+    @OneToMany(mappedBy = "arrival_airport", cascade = CascadeType.ALL)
+    private List<Flights> arrival_airport;
 
     public enum AirportsStatus {
         ACTIVE, BLOCKED, DELETED
@@ -39,9 +45,6 @@ public class Airports {
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 
-    public Airports() {
-    }
-
     public Airports(String id, String code, String name, String city, String country, AirportsStatus status,
             LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;
@@ -51,70 +54,6 @@ public class Airports {
         this.country = country;
         this.status = status;
         this.created_at = created_at;
-        this.updated_at = updated_at;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public AirportsStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AirportsStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
         this.updated_at = updated_at;
     }
 }

@@ -3,20 +3,27 @@ package com.airline.airline_booking_system.booking.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.apache.catalina.User;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import com.airline.airline_booking_system.flight.entity.*;
 import com.airline.airline_booking_system.payment.entity.*;
+import com.airline.airline_booking_system.user.entity.Users;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "bookings")
 public class Bookings {
@@ -26,16 +33,17 @@ public class Bookings {
     private String booking_code;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Users users;
 
     @ManyToOne
-    @JoinColumn(name = "flight_schedule_id", nullable = false)
-    private FlightSchedules flightSchedules;
+    @JoinColumn(name = "flight_schedules_id", nullable = false)
+    private FlightSchedules flight_schedules;
 
     public enum BookingStatus {
         PENDING, CONFIRMED, CANCELLED, EXPIRED
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
     @Column(nullable = false)
@@ -46,100 +54,29 @@ public class Bookings {
     @Column(nullable = false)
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<FlightSeats> seats;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<BookingPassengers> passengers;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<Payments> payments;
 
-    public Bookings() {
-    }
-
-    public Bookings(String id, String booking_code, User user, FlightSchedules flightSchedules, BookingStatus status,
-            float total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at) {
+    public Bookings(String id, String booking_code, Users user, FlightSchedules flightSchedules, BookingStatus status,
+            float total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at,
+            List<FlightSeats> seats, List<BookingPassengers> passengers, List<Payments> payments) {
         this.id = id;
         this.booking_code = booking_code;
-        this.user = user;
-        this.flightSchedules = flightSchedules;
+        this.users = user;
+        this.flight_schedules = flightSchedules;
         this.status = status;
         this.total_amount = total_amount;
         this.expires_at = expires_at;
         this.created_at = created_at;
         this.updated_at = updated_at;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getBooking_code() {
-        return booking_code;
-    }
-
-    public void setBooking_code(String booking_code) {
-        this.booking_code = booking_code;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public FlightSchedules getFlightSchedules() {
-        return flightSchedules;
-    }
-
-    public void setFlightSchedules(FlightSchedules flightSchedules) {
-        this.flightSchedules = flightSchedules;
-    }
-
-    public BookingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
-
-    public float getTotal_amount() {
-        return total_amount;
-    }
-
-    public void setTotal_amount(float total_amount) {
-        this.total_amount = total_amount;
-    }
-
-    public LocalDateTime getExpires_at() {
-        return expires_at;
-    }
-
-    public void setExpires_at(LocalDateTime expires_at) {
-        this.expires_at = expires_at;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
+        this.seats = seats;
+        this.passengers = passengers;
+        this.payments = payments;
     }
 }
