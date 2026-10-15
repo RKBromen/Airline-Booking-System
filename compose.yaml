@@ -7,9 +7,15 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/airline_booking
       SPRING_DATASOURCE_USERNAME: airline
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-airline_local}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
       db:
         condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - default
+      - kafka-network
 
   db:
     image: mysql:8.4
