@@ -8,7 +8,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "user_roles")
 public class UserRoles {
@@ -25,36 +29,9 @@ public class UserRoles {
     @JoinColumn(name = "role_id")
     private Roles role;
 
-    public UserRoles() {
-    }
-
     public UserRoles(UserRolesId id, Users user, Roles role) {
         this.id = id;
         this.user = user;
-        this.role = role;
-    }
-
-    public UserRolesId getId() {
-        return id;
-    }
-
-    public void setId(UserRolesId id) {
-        this.id = id;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
-    public Roles getRole() {
-        return role;
-    }
-
-    public void setRole(Roles role) {
         this.role = role;
     }
 }
