@@ -30,6 +30,7 @@ public class Payments {
         VNPAY, MOMO, CREDIT_CARD, BANK_TRANSFER
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentMethod payment_method;
     @Column(nullable = false)

@@ -1,4 +1,4 @@
-package com.airline.airline_booking_system.role.entity;
+package com.airline.airline_booking_system.user.entity;
 
 import java.io.Serializable;
 
