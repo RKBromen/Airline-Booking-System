@@ -23,3 +23,9 @@ spring:
         "[spring.json.value.default.type]": "com.airline.airline_booking_system.kafka.event.TestEvent"
     listener:
       ack-mode: record
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

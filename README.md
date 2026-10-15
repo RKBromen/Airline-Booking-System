@@ -16,8 +16,28 @@ chờ database sẵn sàng rồi chạy Spring Boot ở cổng 8080.
 Flyway tự chạy migration trong `src/main/resources/db/migration`.
 Lần đầu cần Internet để tải image và thư viện Maven.
 
-Ứng dụng được truy cập tại http://localhost:8080. Hiện project chưa có
-controller/trang chủ, nên truy cập `/` có thể trả về 404 dù ứng dụng đã chạy.
+Ứng dụng được truy cập tại http://localhost:8080. Project chưa có trang chủ,
+nên truy cập `/` có thể trả về 404 dù ứng dụng đã chạy.
+
+## Swagger UI
+
+Sau khi ứng dụng khởi động, mở http://localhost:8080/swagger-ui.html.
+Tài liệu OpenAPI JSON nằm tại http://localhost:8080/v3/api-docs.
+Nếu đổi `APP_PORT`, thay cổng trong các địa chỉ tương ứng.
+
+Trong nhóm **Kafka Test**, chọn `POST /api/kafka/test`, bấm **Try it out**,
+nhập body rồi bấm **Execute**:
+
+```json
+{"message": "Hello Kafka!"}
+```
+
+API trả `202 Accepted` khi đã gọi producer gửi bất đồng bộ; kiểm tra log
+producer/consumer để xác nhận gửi và nhận thành công. Message trống trả `400`.
+
+Sau khi thêm hoặc cập nhật Swagger, build lại bằng `docker compose up --build -d app`.
+
+## Quản lý container
 
 Xem trạng thái và log:
 
