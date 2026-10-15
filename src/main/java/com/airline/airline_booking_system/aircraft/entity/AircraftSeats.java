@@ -2,6 +2,7 @@ package com.airline.airline_booking_system.aircraft.entity;
 
 import java.util.List;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,8 +15,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.airline.airline_booking_system.flight.entity.*;
 
 @NoArgsConstructor
 @Data

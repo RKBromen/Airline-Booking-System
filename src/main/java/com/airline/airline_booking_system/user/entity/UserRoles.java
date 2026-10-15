@@ -1,6 +1,4 @@
-package com.airline.airline_booking_system.role.entity;
-
-import com.airline.airline_booking_system.user.entity.Users;
+package com.airline.airline_booking_system.user.entity;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

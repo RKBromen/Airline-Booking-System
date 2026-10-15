@@ -3,6 +3,8 @@ package com.airline.airline_booking_system.booking.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +19,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.airline.airline_booking_system.flight.entity.*;
 import com.airline.airline_booking_system.payment.entity.*;
 import com.airline.airline_booking_system.user.entity.Users;
 

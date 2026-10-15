@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.airline.airline_booking_system.flight.entity.FlightSeats;
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 
 @Data
 @NoArgsConstructor

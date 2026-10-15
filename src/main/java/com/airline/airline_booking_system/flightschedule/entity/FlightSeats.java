@@ -1,4 +1,4 @@
-package com.airline.airline_booking_system.flight.entity;
+package com.airline.airline_booking_system.flightschedule.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;

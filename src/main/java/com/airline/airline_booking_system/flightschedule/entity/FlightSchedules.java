@@ -1,4 +1,4 @@
-package com.airline.airline_booking_system.flight.entity;
+package com.airline.airline_booking_system.flightschedule.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import com.airline.airline_booking_system.aircraft.entity.Aircrafts;
 import com.airline.airline_booking_system.booking.entity.Bookings;
 
+import com.airline.airline_booking_system.flight.entity.Flights;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

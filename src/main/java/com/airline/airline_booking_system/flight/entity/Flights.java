@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.airline.airline_booking_system.airport.entity.Airports;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
