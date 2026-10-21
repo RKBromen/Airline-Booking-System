@@ -1,5 +1,6 @@
 package com.airline.airline_booking_system.booking.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -30,7 +31,7 @@ public class BookingPassengers {
     private FlightSeats flight_seats;
     @Column(nullable = false)
     private String full_name;
-    private LocalDateTime date_of_birth;
+    private LocalDate date_of_birth;
 
     public enum Gender {
         MALE, FEMALE, OTHER
@@ -42,7 +43,7 @@ public class BookingPassengers {
     private LocalDateTime created_at;
 
     public BookingPassengers(String id, Bookings bookings, FlightSeats flightSeats, String full_name,
-            LocalDateTime date_of_birth, Gender gender, String document_number, LocalDateTime created_at) {
+            LocalDate date_of_birth, Gender gender, String document_number, LocalDateTime created_at) {
         this.id = id;
         this.bookings = bookings;
         this.flight_seats = flightSeats;

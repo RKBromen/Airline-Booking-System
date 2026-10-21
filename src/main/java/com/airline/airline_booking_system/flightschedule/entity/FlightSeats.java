@@ -44,7 +44,7 @@ public class FlightSeats {
     private float price;
 
     @ManyToOne
-    @JoinColumn(name = "held_by_booking_id", nullable = false)
+    @JoinColumn(name = "held_by_booking_id", nullable = true)
     private Bookings bookings;
     private LocalDateTime held_until;
 

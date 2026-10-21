@@ -30,7 +30,7 @@ import com.airline.airline_booking_system.user.entity.Users;
 public class Bookings {
     @Id
     private String id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String booking_code;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
