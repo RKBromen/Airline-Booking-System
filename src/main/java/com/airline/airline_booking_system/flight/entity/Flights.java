@@ -3,6 +3,8 @@ package com.airline.airline_booking_system.flight.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
+
 import com.airline.airline_booking_system.airport.entity.Airports;
 
 import jakarta.persistence.CascadeType;

@@ -3,15 +3,20 @@ package com.airline.airline_booking_system.aircraft.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import com.airline.airline_booking_system.flight.entity.*;
-
+@NoArgsConstructor
+@Data
 @Entity
 @Table(name = "aircrafts")
 public class Aircrafts {
@@ -24,6 +29,7 @@ public class Aircrafts {
         ACTIVE, BLOCKED, DELETED
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AircraftsStatus status;
     private LocalDateTime created_at;
@@ -35,9 +41,6 @@ public class Aircrafts {
     @OneToMany(mappedBy = "aircrafts", cascade = CascadeType.ALL)
     private List<FlightSchedules> schedules;
 
-    public Aircrafts() {
-    }
-
     public Aircrafts(String id, String registration_no, AircraftsStatus status, LocalDateTime created_at,
             LocalDateTime updated_at, List<AircraftSeats> seats) {
         this.id = id;
@@ -45,54 +48,6 @@ public class Aircrafts {
         this.status = status;
         this.created_at = created_at;
         this.updated_at = updated_at;
-        this.seats = seats;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getRegistration_no() {
-        return registration_no;
-    }
-
-    public void setRegistration_no(String registration_no) {
-        this.registration_no = registration_no;
-    }
-
-    public AircraftsStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AircraftsStatus status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
-    }
-
-    public List<AircraftSeats> getSeats() {
-        return seats;
-    }
-
-    public void setSeats(List<AircraftSeats> seats) {
         this.seats = seats;
     }
 }

@@ -16,7 +16,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-import com.airline.airline_booking_system.flight.entity.*;
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 import com.airline.airline_booking_system.payment.entity.*;
 
 @Entity

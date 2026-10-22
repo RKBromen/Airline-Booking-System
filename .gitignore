@@ -1,6 +1,8 @@
 HELP.md
+.env
 target/
 .mvn/wrapper/maven-wrapper.jar
+.mvn-cache
 !**/src/main/**/target/
 !**/src/test/**/target/
 

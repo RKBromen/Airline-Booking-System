@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import com.airline.airline_booking_system.flight.entity.FlightSeats;
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 
 @Entity
 @Table(name = "booking_passengers")

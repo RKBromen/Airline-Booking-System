@@ -2,6 +2,8 @@ package com.airline.airline_booking_system.aircraft.entity;
 
 import java.util.List;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
