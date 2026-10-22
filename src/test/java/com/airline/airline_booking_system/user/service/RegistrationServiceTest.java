@@ -18,10 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.airline.airline_booking_system.role.entity.Roles;
-import com.airline.airline_booking_system.role.entity.UserRoles;
-import com.airline.airline_booking_system.role.repository.RoleRepository;
-import com.airline.airline_booking_system.role.repository.UserRoleRepository;
+import com.airline.airline_booking_system.user.entity.Roles;
+import com.airline.airline_booking_system.user.entity.UserRoles;
+import com.airline.airline_booking_system.user.repository.RoleRepository;
+import com.airline.airline_booking_system.user.repository.UserRoleRepository;
 import com.airline.airline_booking_system.user.dto.RegisterRequest;
 import com.airline.airline_booking_system.user.entity.Users;
 import com.airline.airline_booking_system.user.repository.UserRepository;

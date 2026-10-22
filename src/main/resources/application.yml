@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: airline-booking
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      properties:
+        "[enable.idempotence]": true
+        "[max.in.flight.requests.per.connection]": 5
+        "[retries]": 2147483647
+        "[retry.backoff.ms]": 1000
+        "[delivery.timeout.ms]": 120000
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      enable-auto-commit: false
+      properties:
+        "[spring.json.trusted.packages]": "com.airline.airline_booking_system.kafka.event"
+        "[spring.json.value.default.type]": "com.airline.airline_booking_system.kafka.event.TestEvent"
+    listener:
+      ack-mode: record
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:local-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:local-google-client-secret}
+            scope: openid, profile, email
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID:local-facebook-client-id}
+            client-secret: ${FACEBOOK_CLIENT_SECRET:local-facebook-client-secret}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: email, public_profile
+            provider: facebook
+        provider:
+          facebook:
+            authorization-uri: https://www.facebook.com/v19.0/dialog/oauth
+            token-uri: https://graph.facebook.com/v19.0/oauth/access_token
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email
+            user-name-attribute: id
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+app:
+  cors:
+    allowed-origin: ${FRONTEND_ORIGIN:http://localhost:3000}
+  auth:
+    refresh-token-expiry-days: ${REFRESH_TOKEN_EXPIRY_DAYS:30}
+    cookie-secure: ${AUTH_COOKIE_SECURE:false}
+  oauth2:
+    frontend-redirect-uri: ${OAUTH2_FRONTEND_REDIRECT_URI:http://localhost:3000/auth/callback}

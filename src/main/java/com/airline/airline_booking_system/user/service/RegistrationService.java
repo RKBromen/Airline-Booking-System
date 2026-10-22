@@ -8,11 +8,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.airline.airline_booking_system.role.entity.Roles;
-import com.airline.airline_booking_system.role.entity.UserRoles;
-import com.airline.airline_booking_system.role.entity.UserRolesId;
-import com.airline.airline_booking_system.role.repository.RoleRepository;
-import com.airline.airline_booking_system.role.repository.UserRoleRepository;
+import com.airline.airline_booking_system.user.entity.Roles;
+import com.airline.airline_booking_system.user.entity.UserRoles;
+import com.airline.airline_booking_system.user.entity.UserRolesId;
+import com.airline.airline_booking_system.user.repository.RoleRepository;
+import com.airline.airline_booking_system.user.repository.UserRoleRepository;
 import com.airline.airline_booking_system.user.dto.RegisterRequest;
 import com.airline.airline_booking_system.user.dto.RegisteredUserResponse;
 import com.airline.airline_booking_system.user.entity.Users;
@@ -50,6 +50,7 @@ public class RegistrationService {
         userRepository.save(user);
         userRoleRepository.save(new UserRoles(new UserRolesId(user.getId(), customerRole.getId()), user, customerRole));
 
-        return new RegisteredUserResponse(user.getId(), user.getEmail(), user.getFull_name(), user.getCreated_at());
+        return new RegisteredUserResponse(user.getId(), user.getEmail(), user.getFull_name(), user.getStatus().name(),
+                java.util.List.of(CUSTOMER_ROLE), user.getCreated_at());
     }
 }

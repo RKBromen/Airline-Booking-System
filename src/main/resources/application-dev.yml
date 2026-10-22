@@ -1,0 +1,6 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: airline-booking-dev
+      auto-offset-reset: earliest

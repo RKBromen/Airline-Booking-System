@@ -26,9 +26,9 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import com.airline.airline_booking_system.role.entity.UserRolesId;
-import com.airline.airline_booking_system.role.repository.RoleRepository;
-import com.airline.airline_booking_system.role.repository.UserRoleRepository;
+import com.airline.airline_booking_system.user.entity.UserRolesId;
+import com.airline.airline_booking_system.user.repository.RoleRepository;
+import com.airline.airline_booking_system.user.repository.UserRoleRepository;
 import com.airline.airline_booking_system.user.entity.Users;
 import com.airline.airline_booking_system.user.repository.UserRepository;
 

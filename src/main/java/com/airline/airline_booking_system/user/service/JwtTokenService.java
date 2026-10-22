@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -59,6 +61,25 @@ public class JwtTokenService {
             throw new IllegalStateException("Could not sign access token", exception);
         }
     }
+
+    public TokenClaims verify(String token) {
+        try {
+            SignedJWT jwt = SignedJWT.parse(token);
+            if (!jwt.verify(new MACVerifier(secret))) return null;
+            JWTClaimsSet claims = jwt.getJWTClaimsSet();
+            if (!ISSUER.equals(claims.getIssuer()) || claims.getExpirationTime() == null
+                    || !claims.getExpirationTime().after(new Date())) return null;
+            Object rawRoles = claims.getClaim("roles");
+            List<String> roles = rawRoles instanceof List<?> values
+                    ? values.stream().filter(String.class::isInstance).map(String.class::cast).toList()
+                    : new ArrayList<>();
+            return new TokenClaims(claims.getSubject(), roles);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public record TokenClaims(String userId, List<String> roles) { }
 
     public long getExpirationSeconds() {
         return expirationSeconds;
