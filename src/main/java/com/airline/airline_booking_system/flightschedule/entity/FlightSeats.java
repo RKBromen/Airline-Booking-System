@@ -2,6 +2,7 @@ package com.airline.airline_booking_system.flightschedule.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.math.*;
 
 import com.airline.airline_booking_system.aircraft.entity.AircraftSeats;
 import com.airline.airline_booking_system.booking.entity.BookingPassengers;
@@ -10,6 +11,8 @@ import com.airline.airline_booking_system.booking.entity.Bookings;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -38,10 +41,11 @@ public class FlightSeats {
         AVAILABLE, HELD, BOOKED
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FlightSeatsStatus status;
     @Column(nullable = false)
-    private float price;
+    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "held_by_booking_id", nullable = true)
@@ -51,7 +55,8 @@ public class FlightSeats {
     @OneToMany(mappedBy = "flight_seats", cascade = CascadeType.ALL)
     private List<BookingPassengers> passengers;
 
-    public FlightSeats(String id, FlightSchedules schedules, AircraftSeats seats, FlightSeatsStatus status, float price,
+    public FlightSeats(String id, FlightSchedules schedules, AircraftSeats seats, FlightSeatsStatus status,
+            BigDecimal price,
             Bookings bookings, LocalDateTime held_until) {
         this.id = id;
         this.flight_schedules = schedules;

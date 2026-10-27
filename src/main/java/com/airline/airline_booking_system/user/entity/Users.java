@@ -26,7 +26,7 @@ public class Users {
     @Column(nullable = false)
     private String email;
     @Column(nullable = false)
-    private String password;
+    private String password_hash;
     @Column(nullable = false)
     private String full_name;
 
@@ -50,7 +50,7 @@ public class Users {
             LocalDateTime updated_at) {
         this.id = id;
         this.email = email;
-        this.password = password;
+        this.password_hash = password;
         this.full_name = full_name;
         this.status = status;
         this.created_at = created_at;

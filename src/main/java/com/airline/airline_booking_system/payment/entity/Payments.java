@@ -1,6 +1,7 @@
 package com.airline.airline_booking_system.payment.entity;
 
 import java.time.LocalDateTime;
+import java.math.*;
 
 import com.airline.airline_booking_system.booking.entity.Bookings;
 
@@ -34,7 +35,7 @@ public class Payments {
     @Column(nullable = false)
     private PaymentMethod payment_method;
     @Column(nullable = false)
-    private float amount;
+    private BigDecimal amount;
 
     public enum PaymentStatus {
         PENDING, SUCCESS, FAILED, REFUNDED
@@ -48,7 +49,7 @@ public class Payments {
     private LocalDateTime created_at;
     private LocalDateTime paid_at;
 
-    public Payments(String id, Bookings bookings, PaymentMethod payment_method, float amount, PaymentStatus status,
+    public Payments(String id, Bookings bookings, PaymentMethod payment_method, BigDecimal amount, PaymentStatus status,
             String transaction_id, LocalDateTime created_at, LocalDateTime paid_at) {
         this.id = id;
         this.bookings = bookings;

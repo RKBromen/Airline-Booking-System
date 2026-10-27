@@ -9,6 +9,8 @@ import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -37,6 +39,7 @@ public class Flights {
         ACTIVE, INACTIVE
     }
 
+    @Enumerated(EnumType.STRING)
     private FlightStatus status;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;

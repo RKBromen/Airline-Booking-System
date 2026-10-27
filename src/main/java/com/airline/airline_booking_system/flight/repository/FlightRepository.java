@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.airline.airline_booking_system.flight.dto.FlightDTO;
 import com.airline.airline_booking_system.flightschedule.dto.FlightScheduleDetail;
 import com.airline.airline_booking_system.flightschedule.dto.FlightSeatResponse;
 import com.airline.airline_booking_system.flightschedule.dto.SearchFlight;
@@ -40,4 +41,12 @@ public interface FlightRepository extends JpaRepository<FlightSchedules, String>
                         and arr.id = f.arrival_airport_id and fsc.id = :schedule_id
                                                 """, nativeQuery = true)
         FlightScheduleDetail getScheduleById(@Param("schedule_id") String schedule_id);
+
+        @Query(value = """
+                                select f.flight_number, dep.code, arr.code, fsc.departure_time
+                                from flights f, flight_schedules fsc, airports dep, airports arr, bookings b
+                                where f.id = fsc.flight_id and f.departure_airport_id = dep.id and fsc.id = b.flight_schedule_id
+                                and f.arrival_airport_id = arr.id and b.id = :bookingId;
+                        """, nativeQuery = true)
+        FlightDTO getFlight(@Param("bookingId") String bookingId);
 }

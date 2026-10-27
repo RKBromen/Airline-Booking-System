@@ -1,5 +1,6 @@
 package com.airline.airline_booking_system.booking.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,13 +32,13 @@ public class Bookings {
     @Id
     private String id;
     @Column(nullable = false, unique = true)
-    private String booking_code;
+    private String bookingCode;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users users;
 
     @ManyToOne
-    @JoinColumn(name = "flight_schedules_id", nullable = false)
+    @JoinColumn(name = "flight_schedule_id", nullable = false)
     private FlightSchedules flight_schedules;
 
     public enum BookingStatus {
@@ -48,7 +49,7 @@ public class Bookings {
     @Column(nullable = false)
     private BookingStatus status;
     @Column(nullable = false)
-    private float total_amount;
+    private BigDecimal total_amount;
     private LocalDateTime expires_at;
     @Column(nullable = false)
     private LocalDateTime created_at;
@@ -65,10 +66,10 @@ public class Bookings {
     private List<Payments> payments;
 
     public Bookings(String id, String booking_code, Users user, FlightSchedules flightSchedules, BookingStatus status,
-            float total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at,
+            BigDecimal total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at,
             List<FlightSeats> seats, List<BookingPassengers> passengers, List<Payments> payments) {
         this.id = id;
-        this.booking_code = booking_code;
+        this.bookingCode = booking_code;
         this.users = user;
         this.flight_schedules = flightSchedules;
         this.status = status;

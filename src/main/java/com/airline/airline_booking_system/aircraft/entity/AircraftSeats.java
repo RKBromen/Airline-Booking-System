@@ -24,7 +24,7 @@ public class AircraftSeats {
     @Id
     private String id;
     @ManyToOne
-    @JoinColumn(name = "aircrafts_id", nullable = false)
+    @JoinColumn(name = "aircraft_id", nullable = false)
     private Aircrafts aircrafts;
     @Column(nullable = false)
     private String seat_number;
