@@ -16,6 +16,21 @@ import jakarta.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(com.airline.airline_booking_system.aircraft.service.AircraftConflictException.class)
+    public ResponseEntity<Map<String, String>> handleAircraftConflict(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(com.airline.airline_booking_system.common.exceptions.AirportNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleAirportNotFound(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(com.airline.airline_booking_system.common.exceptions.AirportCodeAlreadyExistException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateAirportCode(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
+    }
+
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateEmail(EmailAlreadyRegisteredException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,6 +35,7 @@ public class SecurityConfiguration {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
                     .ignoringRequestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/oauth2/**",
                             "/oauth2/**", "/login/oauth2/**", "/api/v1/users/**"))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
@@ -44,6 +46,10 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/v1/auth/me", "/api/v1/auth/providers", "/api/v1/users/me",
                             "/api/v1/users/me/**").authenticated()
                     .requestMatchers("/api/v1/users", "/api/v1/users/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/airports", "/api/v1/airports/**").permitAll()
+                    .requestMatchers("/api/v1/airports", "/api/v1/airports/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/aircrafts", "/api/v1/aircrafts/**").hasAnyRole("ADMIN", "STAFF")
+                    .requestMatchers("/api/v1/aircrafts", "/api/v1/aircrafts/**").hasRole("ADMIN")
                     .anyRequest().permitAll())
             .exceptionHandling(exceptions -> exceptions
                     .authenticationEntryPoint((request, response, exception) -> response.sendError(401))

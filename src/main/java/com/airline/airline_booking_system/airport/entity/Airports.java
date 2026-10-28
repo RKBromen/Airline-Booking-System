@@ -19,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "airports")
@@ -28,16 +30,20 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Airports {
     @Id
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(length = 36)
     private UUID id;
 
-    @Column(nullable = false, length = 3)
+    @Column(nullable = false, length = 3, unique = true, updatable = false)
     private String code;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String name;
 
+    @Column(length = 100)
     private String city;
 
+    @Column(length = 100)
     private String country;
 
     @OneToMany(mappedBy = "departure_airport_id", cascade = CascadeType.ALL)
@@ -47,7 +53,8 @@ public class Airports {
     private List<Flights> arrivalFlights;
 
     @Enumerated(EnumType.STRING)
-    public AirportStatus status;
+    @Column(nullable = false)
+    private AirportStatus status;
 
     @Column(name = "created_at",insertable = false, updatable = false)
     private LocalDateTime createdAt;
