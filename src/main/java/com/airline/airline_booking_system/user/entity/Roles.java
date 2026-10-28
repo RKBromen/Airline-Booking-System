@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "roles")
 public class Roles {
     @Id
+    @Column(name = "id", length = 36, columnDefinition = "CHAR(36)")
     private String id;
 
     @Column(nullable = false)
@@ -22,4 +23,7 @@ public class Roles {
         this.id = id;
         this.name = name;
     }
+
+    public String getId() { return id; }
+    public String getName() { return name; }
 }
