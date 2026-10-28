@@ -13,4 +13,11 @@ import java.util.UUID;
 public interface AirportRepository extends JpaRepository<Airports, UUID> {
     List<Airports> findByStatus(AirportStatus status);
 
+    Optional<Airports> findByIdAndStatus(UUID id, AirportStatus status);
+
+    boolean existsByCode(String code);
+
+    boolean existsByCityAndCountry(String city, String country);
+
+    boolean existsByName(String name);
 }
