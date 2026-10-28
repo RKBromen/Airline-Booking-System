@@ -13,29 +13,26 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.UniqueConstraint;
 
-@NoArgsConstructor
-@Data
+import com.airline.airline_booking_system.aircraft.enums.SeatClass;
+
 @Entity
-@Table(name = "aircraft_seats")
+@Table(name = "aircraft_seats", uniqueConstraints = @UniqueConstraint(
+        name = "uk_aircraft_seat", columnNames = {"aircraft_id", "seat_number"}))
 public class AircraftSeats {
     @Id
+    @Column(length = 36)
     private String id;
     @ManyToOne
-    @JoinColumn(name = "aircrafts_id", nullable = false)
+    @JoinColumn(name = "aircraft_id", nullable = false)
     private Aircrafts aircrafts;
-    @Column(nullable = false)
-    private String seat_number;
-
-    public enum SeatClass {
-        ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
-    }
+    @Column(name = "seat_number", nullable = false, length = 10)
+    private String seatNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SeatClass seat_class;
+    @Column(name = "seat_class", nullable = false)
+    private SeatClass seatClass;
 
     @OneToMany(mappedBy = "seats", cascade = CascadeType.ALL)
     private List<FlightSeats> seats;
@@ -43,7 +40,39 @@ public class AircraftSeats {
     public AircraftSeats(String id, Aircrafts aircrafts, String seat_number, SeatClass seat_class) {
         this.id = id;
         this.aircrafts = aircrafts;
-        this.seat_number = seat_number;
-        this.seat_class = seat_class;
+        this.seatNumber = seat_number;
+        this.seatClass = seat_class;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Aircrafts getAircrafts() {
+        return aircrafts;
+    }
+
+    public void setAircrafts(Aircrafts aircrafts) {
+        this.aircrafts = aircrafts;
+    }
+
+    public String getSeatNumber() {
+        return seatNumber;
+    }
+
+    public void setSeatNumber(String seatNumber) {
+        this.seatNumber = seatNumber;
+    }
+
+    public SeatClass getSeatClass() {
+        return seatClass;
+    }
+
+    public void setSeatClass(SeatClass seatClass) {
+        this.seatClass = seatClass;
     }
 }

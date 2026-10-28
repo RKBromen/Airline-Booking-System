@@ -5,11 +5,14 @@ import java.util.List;
 
 import com.airline.airline_booking_system.aircraft.entity.Aircrafts;
 import com.airline.airline_booking_system.booking.entity.Bookings;
+import com.airline.airline_booking_system.flight.entity.Flights;
 
 import com.airline.airline_booking_system.flight.entity.Flights;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -38,16 +41,17 @@ public class FlightSchedules {
     @Column(nullable = false)
     private float base_price;
 
-    @OneToMany(mappedBy = "flight_schedules", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "flightSchedules", cascade = CascadeType.ALL)
     private List<Bookings> bookings;
 
-    @OneToMany(mappedBy = "flight_schedules", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "schedules", cascade = CascadeType.ALL)
     private List<FlightSeats> seats;
 
     public enum FlightSchedulesStatus {
         SCHEDULED, BOARDING, DEPARTED, COMPLETED, CANCELLED
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FlightSchedulesStatus status;
     @Column(nullable = false)

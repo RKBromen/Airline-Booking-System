@@ -22,12 +22,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class Users {
     @Id
+    @Column(name = "id", length = 36, columnDefinition = "CHAR(36)")
     private String id;
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
-    @Column(nullable = false)
+    @Column(name = "password_hash")
     private String password;
-    @Column(nullable = false)
+    @Column(name = "full_name", nullable = false, length = 150)
     private String full_name;
 
     public enum UserStatus {
@@ -37,9 +38,9 @@ public class Users {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime created_at;
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updated_at;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
@@ -56,4 +57,19 @@ public class Users {
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getFull_name() { return full_name; }
+    public void setFull_name(String fullName) { this.full_name = fullName; }
+    public UserStatus getStatus() { return status; }
+    public void setStatus(UserStatus status) { this.status = status; }
+    public LocalDateTime getCreated_at() { return created_at; }
+    public void setCreated_at(LocalDateTime createdAt) { this.created_at = createdAt; }
+    public LocalDateTime getUpdated_at() { return updated_at; }
+    public void setUpdated_at(LocalDateTime updatedAt) { this.updated_at = updatedAt; }
 }

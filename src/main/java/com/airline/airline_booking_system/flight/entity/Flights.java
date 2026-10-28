@@ -3,12 +3,16 @@ package com.airline.airline_booking_system.flight.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
+
 import com.airline.airline_booking_system.airport.entity.Airports;
 
 import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -27,16 +31,17 @@ public class Flights {
     @Column(nullable = false, unique = true)
     private String flight_number;
     @ManyToOne
-    @JoinColumn(name = "departure_airport_id", nullable = false, unique = true)
-    private Airports departure_airport;
+    @JoinColumn(name = "departure_airport_id", nullable = false)
+    private Airports departure_airport_id;
     @ManyToOne
-    @JoinColumn(name = "arrival_airport_id", nullable = false, unique = true)
-    private Airports arrival_airport;
+    @JoinColumn(name = "arrival_airport_id", nullable = false)
+    private Airports arrival_airport_id;
 
     public enum FlightStatus {
         ACTIVE, INACTIVE
     }
 
+    @Enumerated(EnumType.STRING)
     private FlightStatus status;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;

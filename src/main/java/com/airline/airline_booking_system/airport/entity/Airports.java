@@ -2,7 +2,9 @@ package com.airline.airline_booking_system.airport.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
+import com.airline.airline_booking_system.airport.enums.AirportStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,45 +17,53 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.airline.airline_booking_system.flight.entity.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "airports")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Airports {
     @Id
-    private String id;
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(length = 36)
+    private UUID id;
+
+    @Column(nullable = false, length = 3, unique = true, updatable = false)
     private String code;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length = 150)
     private String name;
+
+    @Column(length = 100)
     private String city;
+
+    @Column(length = 100)
     private String country;
 
-    @OneToMany(mappedBy = "departure_airport", cascade = CascadeType.ALL)
-    private List<Flights> departure_airport;
-    @OneToMany(mappedBy = "arrival_airport", cascade = CascadeType.ALL)
-    private List<Flights> arrival_airport;
+    @OneToMany(mappedBy = "departure_airport_id", cascade = CascadeType.ALL)
+    private List<Flights> departureFlights;
 
-    public enum AirportsStatus {
-        ACTIVE, BLOCKED, DELETED
-    }
+    @OneToMany(mappedBy = "arrival_airport_id", cascade = CascadeType.ALL)
+    private List<Flights> arrivalFlights;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AirportsStatus status;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private AirportStatus status;
 
-    public Airports(String id, String code, String name, String city, String country, AirportsStatus status,
-            LocalDateTime created_at, LocalDateTime updated_at) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.city = city;
-        this.country = country;
-        this.status = status;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
-    }
+    @Column(name = "created_at",insertable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at",insertable = false, updatable = false)
+    private LocalDateTime updatedAt;
+
 }
