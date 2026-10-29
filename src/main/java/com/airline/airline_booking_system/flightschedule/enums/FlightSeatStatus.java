@@ -1,4 +1,7 @@
 package com.airline.airline_booking_system.flightschedule.enums;
 
-public class FlightSeatStatus {
+public enum FlightSeatStatus {
+    AVAILABLE,
+    HELD,
+    BOOKED
 }

@@ -1,4 +1,9 @@
 package com.airline.airline_booking_system.flightschedule.enums;
 
-public class FlightScheduleStatus {
+public enum FlightScheduleStatus {
+    SCHEDULED,
+    BOARDING,
+    DEPARTED,
+    COMPLETED,
+    CANCELLED
 }
