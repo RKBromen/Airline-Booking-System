@@ -1,7 +1,7 @@
 package com.airline.airline_booking_system.booking.entity;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,7 +46,7 @@ public class BookingPassengers {
             LocalDate date_of_birth, Gender gender, String document_number, LocalDateTime created_at) {
         this.id = id;
         this.bookings = bookings;
-        this.flight_seats = flightSeats;
+        this.flightSeats = flightSeats;
         this.full_name = full_name;
         this.date_of_birth = date_of_birth;
         this.gender = gender;

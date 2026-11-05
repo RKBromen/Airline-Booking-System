@@ -1,10 +1,11 @@
 package com.airline.airline_booking_system.booking.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.airline.airline_booking_system.user.entity.Users;
-
+import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
+import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,8 +20,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
-import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 import com.airline.airline_booking_system.payment.entity.*;
 import com.airline.airline_booking_system.user.entity.Users;
 
@@ -32,14 +31,14 @@ import com.airline.airline_booking_system.user.entity.Users;
 public class Bookings {
     @Id
     private String id;
-    @Column(nullable = false)
-    private String booking_code;
+    @Column(name = "booking_code", nullable = false, unique = true)
+    private String bookingCode;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private Users users;
 
     @ManyToOne
-    @JoinColumn(name = "flight_schedules_id", nullable = false)
+    @JoinColumn(name = "flight_schedule_id", nullable = false)
     private FlightSchedules flight_schedules;
 
     public enum BookingStatus {
@@ -50,7 +49,7 @@ public class Bookings {
     @Column(nullable = false)
     private BookingStatus status;
     @Column(nullable = false)
-    private float total_amount;
+    private BigDecimal total_amount;
     private LocalDateTime expires_at;
     @Column(nullable = false)
     private LocalDateTime created_at;
@@ -66,13 +65,11 @@ public class Bookings {
     @OneToMany(mappedBy = "bookings", cascade = CascadeType.ALL)
     private List<Payments> payments;
 
-    public Bookings() {
-    }
-
     public Bookings(String id, String booking_code, Users user, FlightSchedules flightSchedules, BookingStatus status,
-            float total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at) {
+            BigDecimal total_amount, LocalDateTime expires_at, LocalDateTime created_at, LocalDateTime updated_at,
+            List<FlightSeats> seats, List<BookingPassengers> passengers, List<Payments> payments) {
         this.id = id;
-        this.booking_code = booking_code;
+        this.bookingCode = booking_code;
         this.users = user;
         this.flight_schedules = flightSchedules;
         this.status = status;
@@ -80,77 +77,8 @@ public class Bookings {
         this.expires_at = expires_at;
         this.created_at = created_at;
         this.updated_at = updated_at;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getBooking_code() {
-        return booking_code;
-    }
-
-    public void setBooking_code(String booking_code) {
-        this.booking_code = booking_code;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
-    public FlightSchedules getFlightSchedules() {
-        return flightSchedules;
-    }
-
-    public void setFlightSchedules(FlightSchedules flightSchedules) {
-        this.flightSchedules = flightSchedules;
-    }
-
-    public BookingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
-
-    public float getTotal_amount() {
-        return total_amount;
-    }
-
-    public void setTotal_amount(float total_amount) {
-        this.total_amount = total_amount;
-    }
-
-    public LocalDateTime getExpires_at() {
-        return expires_at;
-    }
-
-    public void setExpires_at(LocalDateTime expires_at) {
-        this.expires_at = expires_at;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
+        this.seats = seats;
+        this.passengers = passengers;
+        this.payments = payments;
     }
 }
