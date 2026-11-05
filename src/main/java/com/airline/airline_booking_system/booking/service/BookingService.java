@@ -33,6 +33,8 @@ import com.airline.airline_booking_system.flight.dto.FlightDTO;
 import com.airline.airline_booking_system.flight.repository.FlightRepository;
 import com.airline.airline_booking_system.flightschedule.entity.FlightSchedules;
 import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
+import com.airline.airline_booking_system.flightschedule.enums.FlightScheduleStatus;
+import com.airline.airline_booking_system.flightschedule.enums.FlightSeatStatus;
 import com.airline.airline_booking_system.flightschedule.repository.FlightScheduleRepository;
 import com.airline.airline_booking_system.flightschedule.repository.FlightSeatRepository;
 import com.airline.airline_booking_system.user.entity.Users;
@@ -86,7 +88,7 @@ public class BookingService {
     }
 
     private void validateFlightSchedule(FlightSchedules schedule) {
-        if (schedule.getStatus() != FlightSchedules.FlightSchedulesStatus.SCHEDULED) {
+        if (schedule.getStatus() != FlightScheduleStatus.SCHEDULED) {
             throw new IllegalArgumentException(
                     "Lịch bay hiện không mở bán vé");
         }
@@ -181,7 +183,7 @@ public class BookingService {
             }
 
             // Đồng bộ Entity trong bộ nhớ với dữ liệu vừa cập nhật
-            seat.setStatus(FlightSeats.FlightSeatsStatus.HELD);
+            seat.setStatus(FlightSeatStatus.HELD);
             seat.setBookings(booking);
             seat.setHeld_until(expiresAt);
         }
@@ -230,7 +232,7 @@ public class BookingService {
             passengerResponses.add(new BookedPassengerResponse(
                     bookingPassenger.getId(),
                     bookingPassenger.getFull_name(),
-                    seat.getSeats().getSeat_number()));
+                    seat.getSeats().getSeatNumber()));
         }
 
         // 7. Lưu hành khách và cập nhật các quan hệ

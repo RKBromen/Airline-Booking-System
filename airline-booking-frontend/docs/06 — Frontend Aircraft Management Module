@@ -1,0 +1,742 @@
+# DOC 05 — Frontend Aircraft Management Module
+**Dự án:** Airline Booking System  
+**Công nghệ:** React + Vite + TypeScript + React Router + Axios + TanStack Query + Zustand + Ant Design  
+**Module:** Aircraft Management  
+**Phạm vi:** Management — ADMIN và STAFF
+
+---
+## 1. Mục tiêu
+Xây dựng module quản lý máy bay, cho phép nhân viên và quản trị viên xem thông tin máy bay, danh sách ghế vật lý, đồng thời cho phép quản trị viên thêm và cập nhật máy bay.
+### 1.1. Danh sách màn hình
+
+|Frontend Route|Chức năng|Role|
+|---|---|---|
+|`/management/aircrafts`|Danh sách máy bay|ADMIN, STAFF|
+|`/management/aircrafts/:id`|Chi tiết máy bay|ADMIN, STAFF|
+|`/management/aircrafts/:id/seats`|Xem sơ đồ ghế vật lý|ADMIN, STAFF|
+|`/management/aircrafts/new`|Thêm máy bay|ADMIN|
+|`/management/aircrafts/:id/edit`|Cập nhật máy bay|ADMIN|
+### 1.2. Yêu cầu chung
+- Sử dụng React Functional Components và TypeScript.
+- Sử dụng Axios để gọi Backend API.
+- Sử dụng TanStack Query để quản lý server state.
+- Sử dụng Ant Design để xây dựng giao diện.
+- Sử dụng React Router để chuyển trang.
+- Sử dụng React Hook Form + Zod nếu đây là thư viện form đã thống nhất trong dự án.
+- Tách biệt API, types, hooks, components và pages.
+- Tái sử dụng Shared UI Components.
+- Xử lý loading, error, empty và success.
+- Kiểm tra role trước khi cho phép truy cập trang.
+- Giao diện responsive trên desktop và mobile.
+## 2. Cấu trúc thư mục
+```
+src/
+├── app/
+│   ├── router/
+│   │   ├── index.tsx
+│   │   ├── paths.ts
+│   │   └── guards/
+│   │       ├── ProtectedRoute.tsx
+│   │       └── RoleGuard.tsx
+│   │
+│   └── layouts/
+│       └── ManagementLayout.tsx
+│
+├── features/
+│   └── aircrafts/
+│       ├── api/
+│       │   └── aircraft.api.ts
+│       │
+│       ├── components/
+│       │   ├── AircraftTable.tsx
+│       │   ├── AircraftSearch.tsx
+│       │   ├── AircraftDetailCard.tsx
+│       │   ├── AircraftForm.tsx
+│       │   ├── AircraftStatusTag.tsx
+│       │   └── AircraftSeatMap.tsx
+│       │
+│       ├── hooks/
+│       │   ├── useAircrafts.ts
+│       │   ├── useAircraft.ts
+│       │   ├── useAircraftSeats.ts
+│       │   ├── useCreateAircraft.ts
+│       │   └── useUpdateAircraft.ts
+│       │
+│       ├── pages/
+│       │   ├── AircraftListPage.tsx
+│       │   ├── AircraftDetailPage.tsx
+│       │   ├── AircraftSeatsPage.tsx
+│       │   ├── AircraftCreatePage.tsx
+│       │   └── AircraftEditPage.tsx
+│       │
+│       ├── types/
+│       │   └── aircraft.types.ts
+│       │
+│       ├── schemas/
+│       │   └── aircraft.schema.ts
+│       │
+│       └── constants/
+│           └── aircraftQueryKeys.ts
+│
+└── shared/
+    ├── api/
+    │   └── axiosClient.ts
+    │
+    └── components/
+        └── ui/
+            ├── LoadingState.tsx
+            ├── ErrorMessage.tsx
+            ├── EmptyState.tsx
+            ├── ConfirmDialog.tsx
+            └── PageHeader.tsx
+```
+### 2.1. Trách nhiệm
+
+|Thành phần|Nhiệm vụ|
+|---|---|
+|`aircraftApi.ts`|Khai báo hàm gọi API máy bay|
+|`aircraft.types.ts`|Định nghĩa TypeScript interfaces/types|
+|`aircraft.schema.ts`|Định nghĩa validation schema cho form|
+|`aircraftQueryKeys.ts`|Quản lý query keys|
+|`hooks/`|Lấy dữ liệu và thực hiện mutations|
+|`components/`|Các thành phần giao diện riêng của Aircraft|
+|`pages/`|Tổ chức màn hình và xử lý điều hướng|
+|`shared/components/ui/`|Component giao diện tái sử dụng|
+
+---
+## 3. Task 1 — Danh sách máy bay
+**Task ID:** AIRCRAFT-01  
+**Route:** `/management/aircrafts`  
+**API:** `GET /api/v1/aircrafts`  
+**Role:** ADMIN, STAFF
+### 3.1. Mô tả chức năng
+Cho phép ADMIN và STAFF xem danh sách máy bay được quản lý trong hệ thống.
+Người dùng có thể xem thông tin cơ bản, tìm kiếm máy bay và chuyển đến trang chi tiết.
+### 3.2. Yêu cầu chức năng
+
+|ID|Yêu cầu|Mức độ|
+|---|---|---|
+|AC-01|Gọi API lấy danh sách máy bay|Bắt buộc|
+|AC-02|Hiển thị danh sách bằng Ant Design Table|Bắt buộc|
+|AC-03|Hiển thị số đăng ký máy bay|Bắt buộc|
+|AC-04|Hiển thị trạng thái máy bay nếu API cung cấp|Bắt buộc|
+|AC-05|Tìm kiếm máy bay theo số đăng ký|Bắt buộc|
+|AC-06|Phân trang danh sách|Bắt buộc|
+|AC-07|Điều hướng đến trang chi tiết|Bắt buộc|
+|AC-08|Chỉ ADMIN được thấy nút thêm máy bay|Bắt buộc|
+|AC-09|Xử lý Loading, Empty và Error|Bắt buộc|
+|AC-10|Responsive|Bắt buộc|
+Việc lọc và phân trang trên server chỉ thực hiện khi backend có hỗ trợ. Nếu không, có thể lọc và phân trang dữ liệu danh sách đã tải về.
+### 3.3. Component cần xây dựng
+
+|Component|Chức năng|
+|---|---|
+|`AircraftTable.tsx`|Hiển thị danh sách máy bay|
+|`AircraftSearch.tsx`|Tìm kiếm máy bay|
+|`AircraftStatusTag.tsx`|Hiển thị trạng thái máy bay|
+|`PageHeader.tsx`|Tiêu đề trang và nút thêm|
+### 3.4. Luồng xử lý
+```
+User truy cập /management/aircrafts
+        |
+        v
+ProtectedRoute + RoleGuard
+        |
+        v
+AircraftListPage
+        |
+        v
+useAircrafts()
+        |
+        v
+aircraftApi.list()
+        |
+        v
+GET /api/v1/aircrafts
+        |
+        v
+TanStack Query quản lý dữ liệu
+        |
+        v
+AircraftTable hiển thị danh sách
+        |
+        +-- Xem chi tiết -> /management/aircrafts/:id
+        |
+        +-- Thêm mới (ADMIN) -> /management/aircrafts/new
+```
+### 3.5. Checklist
+- Tạo API `aircraftApi.list()`.
+- Tạo hook `useAircrafts()`.
+- Xây dựng `AircraftTable`.
+- Xây dựng `AircraftSearch`.
+- Xây dựng `AircraftStatusTag`.
+- Xây dựng `AircraftListPage`.
+- Tích hợp tìm kiếm và phân trang.
+- Tích hợp điều hướng sang trang chi tiết.
+- Hiển thị nút thêm mới theo role.
+- Xử lý Loading, Empty, Error và Retry.
+- Kiểm tra responsive.
+
+---
+## 4. Task 2 — Chi tiết máy bay
+**Task ID:** AIRCRAFT-02  
+**Route:** `/management/aircrafts/:id`  
+**API:** `GET /api/v1/aircrafts/{id}`  
+**Role:** ADMIN, STAFF
+### 4.1. Mô tả chức năng
+Cho phép người dùng xem thông tin chi tiết của một máy bay.
+Dữ liệu được truy vấn từ backend thông qua ID trên URL.
+### 4.2. Yêu cầu chức năng
+
+|ID|Yêu cầu|Mức độ|
+|---|---|---|
+|AC-11|Lấy `id` từ URL bằng `useParams()`|Bắt buộc|
+|AC-12|Gọi API lấy chi tiết máy bay|Bắt buộc|
+|AC-13|Hiển thị số đăng ký máy bay|Bắt buộc|
+|AC-14|Hiển thị trạng thái máy bay|Bắt buộc|
+|AC-15|Hiển thị các thông tin khác theo response API|Bắt buộc|
+|AC-16|Có nút xem danh sách ghế|Bắt buộc|
+|AC-17|Có nút chỉnh sửa dành cho ADMIN|Bắt buộc|
+|AC-18|Xử lý Loading, Error, 404|Bắt buộc|
+|AC-19|Có nút quay lại danh sách|Bắt buộc|
+### 4.3. Component cần xây dựng
+
+|Component|Chức năng|
+|---|---|
+|`AircraftDetailCard.tsx`|Hiển thị thông tin máy bay|
+|`AircraftStatusTag.tsx`|Hiển thị trạng thái|
+|`PageHeader.tsx`|Tiêu đề và thao tác|
+### 4.4. Luồng xử lý
+```
+User truy cập /management/aircrafts/:id
+        |
+        v
+AircraftDetailPage
+        |
+        v
+useParams() lấy id
+        |
+        v
+useAircraft(id)
+        |
+        v
+aircraftApi.get(id)
+        |
+        v
+GET /api/v1/aircrafts/{id}
+        |
+        +-- 200 -> AircraftDetailCard
+        |
+        +-- 404 -> Not Found
+        |
+        +-- Error -> ErrorState
+```
+### 4.5. Checklist
+- Tạo API `aircraftApi.get(id)`.
+- Tạo hook `useAircraft(id)`.
+- Xây dựng `AircraftDetailCard`.
+- Xây dựng `AircraftDetailPage`.
+- Hiển thị thông tin theo dữ liệu backend.
+- Thêm nút xem ghế vật lý.
+- Thêm nút chỉnh sửa cho ADMIN.
+- Xử lý ID không hợp lệ.
+- Xử lý Loading, Error, 404 và Retry.
+- Test truy cập trực tiếp bằng URL.
+
+---
+## 5. Task 3 — Xem sơ đồ ghế vật lý
+**Task ID:** AIRCRAFT-03  
+**Route:** `/management/aircrafts/:id/seats`  
+**API:** `GET /api/v1/aircrafts/{id}/seats`  
+**Role:** ADMIN, STAFF
+### 5.1. Mô tả chức năng
+Hiển thị danh sách hoặc sơ đồ ghế vật lý thuộc một máy bay.
+**Lưu ý:** Ghế vật lý của máy bay khác với ghế được bán theo từng lịch bay.
+- Aircraft Seat: Ghế được cấu hình trên máy bay.
+- Flight Seat: Ghế gắn với một lịch bay cụ thể, có thể có giá bán và trạng thái đặt chỗ.
+Trang này chỉ thực hiện chức năng xem ghế vật lý, không xử lý đặt vé hay thanh toán.
+### 5.2. Yêu cầu chức năng
+
+|ID|Yêu cầu|Mức độ|
+|---|---|---|
+|AC-20|Lấy ID máy bay từ URL|Bắt buộc|
+|AC-21|Gọi API lấy danh sách ghế|Bắt buộc|
+|AC-22|Hiển thị mã/số ghế|Bắt buộc|
+|AC-23|Hiển thị loại ghế nếu API cung cấp|Bắt buộc|
+|AC-24|Hiển thị sơ đồ vị trí ghế theo dữ liệu backend|Bắt buộc|
+|AC-25|Hiển thị tổng số ghế|Bắt buộc|
+|AC-26|Xử lý Loading, Empty, Error|Bắt buộc|
+|AC-27|Có nút quay lại chi tiết máy bay|Bắt buộc|
+Không được tự giả định vị trí hàng ghế, lối đi hoặc loại ghế nếu backend không cung cấp đủ thông tin.
+### 5.3. Component cần xây dựng
+
+|Component|Chức năng|
+|---|---|
+|`AircraftSeatMap.tsx`|Hiển thị sơ đồ ghế|
+|`AircraftDetailCard.tsx`|Có thể tái sử dụng để hiển thị thông tin máy bay|
+|`EmptyState.tsx`|Hiển thị trường hợp chưa có ghế|
+### 5.4. Luồng xử lý
+```
+User truy cập /management/aircrafts/:id/seats
+        |
+        v
+AircraftSeatsPage
+        |
+        v
+useAircraftSeats(id)
+        |
+        v
+aircraftApi.getSeats(id)
+        |
+        v
+GET /api/v1/aircrafts/{id}/seats
+        |
+        v
+AircraftSeatMap
+        |
+        v
+Hiển thị sơ đồ ghế vật lý
+```
+### 5.5. Checklist
+- Tạo API `aircraftApi.getSeats(id)`.
+- Tạo hook `useAircraftSeats(id)`.
+- Xây dựng `AircraftSeatMap`.
+- Xây dựng `AircraftSeatsPage`.
+- Hiển thị thông tin ghế theo API.
+- Hiển thị tổng số ghế.
+- Xử lý trường hợp máy bay chưa có ghế.
+- Xử lý Loading, Error và Retry.
+- Test responsive.
+
+---
+## 6. Task 4 — Thêm máy bay
+**Task ID:** AIRCRAFT-04  
+**Route:** `/management/aircrafts/new`  
+**API:** `POST /api/v1/aircrafts`  
+**Role:** ADMIN
+### 6.1. Mô tả chức năng
+Cho phép ADMIN tạo máy bay mới thông qua biểu mẫu.
+Theo tài liệu backend đã cung cấp, ví dụ tạo máy bay sử dụng thuộc tính:
+```
+{
+  "registrationNo": "VN-A321"
+}
+```
+Các trường nhập liệu khác chỉ được bổ sung khi backend thực sự hỗ trợ.
+### 6.2. Yêu cầu chức năng
+
+|ID|Yêu cầu|Mức độ|
+|---|---|---|
+|AC-28|Chỉ ADMIN được truy cập|Bắt buộc|
+|AC-29|Hiển thị biểu mẫu thêm máy bay|Bắt buộc|
+|AC-30|Validation trường bắt buộc|Bắt buộc|
+|AC-31|Gọi API tạo máy bay|Bắt buộc|
+|AC-32|Hiển thị loading khi submit|Bắt buộc|
+|AC-33|Không gửi trùng request do nhấn liên tục|Bắt buộc|
+|AC-34|Hiển thị lỗi validation từ backend|Bắt buộc|
+|AC-35|Hiển thị thông báo tạo thành công|Bắt buộc|
+|AC-36|Điều hướng sau khi tạo thành công|Bắt buộc|
+|AC-37|Có nút hủy và quay lại|Bắt buộc|
+### 6.3. Component cần xây dựng
+
+|Component|Chức năng|
+|---|---|
+|`AircraftForm.tsx`|Form nhập dữ liệu máy bay|
+|`AircraftCreatePage.tsx`|Điều phối tạo máy bay|
+|`PageHeader.tsx`|Tiêu đề trang|
+### 6.4. Luồng xử lý
+```
+ADMIN truy cập /management/aircrafts/new
+        |
+        v
+AircraftCreatePage
+        |
+        v
+AircraftForm
+        |
+        v
+Nhập registrationNo
+        |
+        v
+Frontend Validation
+        |
+        +-- Invalid -> Hiển thị lỗi
+        |
+        +-- Valid -> useCreateAircraft()
+                        |
+                        v
+                 aircraftApi.create()
+                        |
+                        v
+                 POST /api/v1/aircrafts
+                        |
+                        +-- Success -> Thông báo thành công
+                        |               |
+                        |               v
+                        |         Invalidate cache
+                        |               |
+                        |               v
+                        |         Điều hướng
+                        |
+                        +-- Error -> Hiển thị lỗi backend
+```
+### 6.5. Checklist
+- Xác nhận request DTO với backend.
+- Tạo `aircraft.schema.ts`.
+- Xây dựng `AircraftForm`.
+- Tạo API `aircraftApi.create(request)`.
+- Tạo hook `useCreateAircraft()`.
+- Xây dựng `AircraftCreatePage`.
+- Tích hợp validation.
+- Disable nút submit khi đang gửi.
+- Xử lý lỗi API.
+- Hiển thị thông báo tạo thành công.
+- Invalidate query danh sách.
+- Điều hướng sau khi tạo.
+
+---
+## 7. Task 5 — Cập nhật máy bay
+**Task ID:** AIRCRAFT-05  
+**Route:** `/management/aircrafts/:id/edit`  
+**API:** Cần xác nhận `PUT` hay `PATCH` theo Swagger  
+**Role:** ADMIN
+### 7.1. Mô tả chức năng
+Cho phép ADMIN cập nhật thông tin máy bay đã tồn tại.
+Trang chỉnh sửa sử dụng lại `AircraftForm` của chức năng thêm máy bay để tránh lặp code.
+### 7.2. Yêu cầu chức năng
+
+|ID|Yêu cầu|Mức độ|
+|---|---|---|
+|AC-38|Chỉ ADMIN được truy cập|Bắt buộc|
+|AC-39|Lấy ID máy bay từ URL|Bắt buộc|
+|AC-40|Gọi API lấy chi tiết máy bay|Bắt buộc|
+|AC-41|Hiển thị dữ liệu hiện tại lên form|Bắt buộc|
+|AC-42|Validation dữ liệu nhập|Bắt buộc|
+|AC-43|Gửi request cập nhật|Bắt buộc|
+|AC-44|Xử lý loading khi cập nhật|Bắt buộc|
+|AC-45|Hiển thị lỗi từ backend|Bắt buộc|
+|AC-46|Hiển thị thông báo cập nhật thành công|Bắt buộc|
+|AC-47|Cập nhật TanStack Query cache|Bắt buộc|
+|AC-48|Điều hướng về trang chi tiết|Bắt buộc|
+### 7.3. Component cần xây dựng
+
+|Component|Chức năng|
+|---|---|
+|`AircraftForm.tsx`|Tái sử dụng form của Create|
+|`AircraftEditPage.tsx`|Lấy dữ liệu và cập nhật|
+|`PageHeader.tsx`|Hiển thị tiêu đề|
+### 7.4. Luồng xử lý
+```
+ADMIN truy cập /management/aircrafts/:id/edit
+        |
+        v
+AircraftEditPage
+        |
+        v
+useAircraft(id)
+        |
+        v
+GET /api/v1/aircrafts/{id}
+        |
+        v
+AircraftForm nhận dữ liệu hiện tại
+        |
+        v
+ADMIN chỉnh sửa
+        |
+        v
+Frontend Validation
+        |
+        +-- Invalid -> Hiển thị lỗi
+        |
+        +-- Valid -> useUpdateAircraft()
+                        |
+                        v
+                 API cập nhật máy bay
+                        |
+                        +-- Success
+                        |      |
+                        |      v
+                        |   Invalidate cache
+                        |      |
+                        |      v
+                        |   Điều hướng trang chi tiết
+                        |
+                        +-- Error -> Hiển thị lỗi
+```
+### 7.5. Checklist
+- Xác nhận phương thức cập nhật từ Swagger.
+- Tạo API cập nhật máy bay.
+- Tạo hook `useUpdateAircraft()`.
+- Tái sử dụng `AircraftForm`.
+- Xây dựng `AircraftEditPage`.
+- Hiển thị dữ liệu hiện tại trên form.
+- Tích hợp validation.
+- Xử lý submit loading.
+- Xử lý lỗi cập nhật.
+- Invalidate danh sách và chi tiết máy bay.
+- Điều hướng sau khi cập nhật.
+- Test phân quyền ADMIN.
+
+---
+## 8. Thiết kế API Layer
+File: `src/features/aircrafts/api/aircraftApi.ts`
+Các phương thức cần có:
+
+| Function              | HTTP Method | Endpoint                       |
+| --------------------- | ----------- | ------------------------------ |
+| `list()`              | GET         | `/api/v1/aircrafts`            |
+| `get(id)`             | GET         | `/api/v1/aircrafts/{id}`       |
+| `getSeats(id)`        | GET         | `/api/v1/aircrafts/{id}/seats` |
+| `create(request)`     | POST        | `/api/v1/aircrafts`            |
+| `update(id, request)` | PUT         |                                |
+Có thể bổ sung các phương thức quản trị ghế hoặc trạng thái máy bay khi mở rộng phạm vi.
+Không cần định nghĩa lại Axios client. Toàn bộ module sử dụng `shared/api/axiosClient.ts` có sẵn.
+## 9. Thiết kế TanStack Query Hooks
+
+|Hook|Chức năng|TanStack Query|
+|---|---|---|
+|`useAircrafts()`|Lấy danh sách máy bay|`useQuery`|
+|`useAircraft(id)`|Lấy chi tiết máy bay|`useQuery`|
+|`useAircraftSeats(id)`|Lấy danh sách ghế|`useQuery`|
+|`useCreateAircraft()`|Tạo máy bay|`useMutation`|
+|`useUpdateAircraft()`|Cập nhật máy bay|`useMutation`|
+### 9.1. Query Keys
+```
+export const aircraftQueryKeys = {
+  all: ["aircrafts"] as const,
+  lists: () =>
+    [...aircraftQueryKeys.all, "list"] as const,
+  list: (params?: object) =>
+    [...aircraftQueryKeys.lists(), params] as const,
+  details: () =>
+    [...aircraftQueryKeys.all, "detail"] as const,
+  detail: (id: string) =>
+    [...aircraftQueryKeys.details(), id] as const,
+  seats: (id: string) =>
+    [...aircraftQueryKeys.detail(id), "seats"] as const,
+};
+```
+Các tham số tìm kiếm và phân trang phải được đưa vào query key nếu ảnh hưởng đến dữ liệu API trả về.
+### 9.2. Quy tắc Mutation
+Sau khi tạo máy bay:
+- Invalidate cache danh sách máy bay.
+- Hiển thị thông báo thành công.
+- Điều hướng đến trang phù hợp.
+Sau khi cập nhật máy bay:
+- Invalidate cache danh sách máy bay.
+- Invalidate cache chi tiết máy bay vừa cập nhật.
+- Điều hướng về trang chi tiết.
+Không tự cập nhật dữ liệu hiển thị như thể request đã thành công nếu backend chưa xác nhận.
+
+---
+## 10. Thiết kế AircraftForm
+Sử dụng chung một component cho hai chức năng:
+- `AircraftCreatePage`
+- `AircraftEditPage`
+### 10.1. Props đề xuất
+```
+interface AircraftFormProps {
+  mode: "create" | "edit";
+  initialValues?: AircraftFormValues;
+  isSubmitting?: boolean;
+  onSubmit: (
+    values: AircraftFormValues
+  ) => void | Promise<void>;
+  onCancel: () => void;
+}
+```
+### 10.2. Quy tắc
+- Create: form khởi tạo với giá trị mặc định.
+- Edit: form nhận dữ liệu hiện tại từ API.
+- Không gọi API trực tiếp bên trong `AircraftForm`.
+- Validation nằm trong schema.
+- Page sử dụng mutation hook để xử lý submit.
+- Hiển thị lỗi backend tại form hoặc thông báo chung.
+- Không tự thêm trường dữ liệu backend không hỗ trợ.
+
+---
+## 11. Phân quyền truy cập
+### 11.1. Bảng phân quyền
+
+|Chức năng|CUSTOMER|STAFF|ADMIN|
+|---|---|---|---|
+|Danh sách máy bay|Không|Có|Có|
+|Chi tiết máy bay|Không|Có|Có|
+|Xem ghế vật lý|Không|Có|Có|
+|Thêm máy bay|Không|Không|Có|
+|Cập nhật máy bay|Không|Không|Có|
+Người chưa đăng nhập phải được chuyển đến `/login`.
+Người đã đăng nhập nhưng không đủ quyền phải được chuyển đến `/forbidden`.
+### 11.2. Quy tắc UI
+- STAFF được xem thông tin máy bay và ghế.
+- STAFF không được hiển thị nút thêm hoặc cập nhật máy bay.
+- ADMIN được truy cập cả năm màn hình.
+- Backend vẫn chịu trách nhiệm xác thực và kiểm tra quyền thực tế.
+- Không dùng việc ẩn nút ở frontend để thay thế authorization backend.
+
+---
+## 12. Xử lý trạng thái giao diện
+
+|Trạng thái|UI Component|Cách xử lý|
+|---|---|---|
+|Loading|`LoadingState`|Hiển thị khi đang tải dữ liệu|
+|Empty|`EmptyState`|Không có máy bay hoặc ghế|
+|Error|`ErrorState`|Hiển thị lỗi và nút Retry|
+|404|`NotFoundPage` hoặc Ant Design Result|Không tìm thấy máy bay|
+|401|Auth handling|Xác thực lại hoặc chuyển login|
+|403|Forbidden|Không có quyền|
+|Submit Loading|Ant Design Button|Khóa submit khi đang xử lý|
+|Success|Ant Design message|Thông báo thành công|
+
+---
+## 13. Kiểm thử
+
+|Test ID|Kịch bản|Kết quả mong đợi|
+|---|---|---|
+|TC-01|STAFF mở danh sách máy bay|Hiển thị danh sách|
+|TC-02|ADMIN mở danh sách máy bay|Hiển thị danh sách và nút thêm|
+|TC-03|CUSTOMER mở trang quản lý|Forbidden|
+|TC-04|Chưa đăng nhập vào trang quản lý|Redirect login|
+|TC-05|Danh sách máy bay rỗng|Hiển thị EmptyState|
+|TC-06|API danh sách thất bại|Hiển thị ErrorState|
+|TC-07|Chọn máy bay từ bảng|Điều hướng đúng ID|
+|TC-08|Mở chi tiết máy bay hợp lệ|Hiển thị đúng dữ liệu|
+|TC-09|Truy cập ID không tồn tại|Hiển thị 404|
+|TC-10|Xem ghế máy bay|Hiển thị đúng danh sách/sơ đồ|
+|TC-11|Máy bay chưa có ghế|Hiển thị EmptyState|
+|TC-12|STAFF truy cập trang thêm|Forbidden|
+|TC-13|ADMIN tạo máy bay hợp lệ|Tạo thành công|
+|TC-14|Submit form thiếu trường bắt buộc|Hiển thị validation|
+|TC-15|Backend từ chối tạo do dữ liệu trùng|Hiển thị lỗi phù hợp|
+|TC-16|ADMIN mở trang chỉnh sửa|Hiển thị dữ liệu hiện tại|
+|TC-17|ADMIN cập nhật hợp lệ|Lưu thành công|
+|TC-18|STAFF truy cập trang chỉnh sửa|Forbidden|
+|TC-19|Refresh trang chi tiết|Vẫn lấy lại đúng dữ liệu|
+|TC-20|Truy cập trên mobile|Không vỡ layout|
+
+---
+## 14. Thứ tự thực hiện
+### Giai đoạn 1 — API và Data Layer
+- Xác nhận DTO máy bay và ghế trong Swagger.
+- Tạo `aircraft.types.ts`.
+- Tạo `aircraftApi.ts`.
+- Tạo `aircraftQueryKeys.ts`.
+- Tạo các custom hooks.
+### Giai đoạn 2 — Read Features
+- Hoàn thành AircraftListPage.
+- Hoàn thành AircraftDetailPage.
+- Hoàn thành AircraftSeatsPage.
+- Kiểm tra ADMIN và STAFF truy cập.
+### Giai đoạn 3 — Write Features
+- Xây dựng AircraftForm.
+- Hoàn thành AircraftCreatePage.
+- Hoàn thành AircraftEditPage.
+- Tích hợp validation.
+- Tích hợp mutations và cache invalidation.
+### Giai đoạn 4 — Integration & Testing
+- Khai báo đầy đủ routes.
+- Tích hợp ProtectedRoute và RoleGuard.
+- Tích hợp ManagementLayout.
+- Kiểm thử 20 test cases.
+- Kiểm tra responsive.
+- Chạy `npm run build`.
+- Build lại frontend Docker và kiểm tra hoạt động.
+
+---
+## 15. Definition of Done
+Module Aircraft Management hoàn thành khi:
+- Cả năm routes hoạt động đúng.
+- Dữ liệu lấy từ backend thực tế.
+- API Layer, Hook, Component và Page được tách biệt.
+- STAFF chỉ xem được các màn hình được cấp quyền.
+- ADMIN thêm và cập nhật máy bay thành công.
+- Sơ đồ ghế vật lý hiển thị đúng theo dữ liệu backend.
+- Loading, Empty, Error và 404 được xử lý đầy đủ.
+- Các mutation cập nhật cache phù hợp.
+- Không có lỗi TypeScript.
+- `npm run build` thành công.
+- Frontend chạy được trên Docker.
+- Hoàn thành kiểm thử và bàn giao trước ngày 13/11/2026.
+## 16. Các điểm cần xác nhận với backend
+Trước khi triển khai, cần đối chiếu Swagger để xác nhận:
+1. Response DTO của danh sách và chi tiết máy bay.
+2. Request DTO tạo máy bay.
+3. Phương thức và request DTO cập nhật máy bay (`PUT` hay `PATCH`).
+4. Response ghế vật lý, các trường xác định hàng, cột, số ghế và loại ghế.
+5. Các trạng thái máy bay hợp lệ.
+6. Query parameters được hỗ trợ cho tìm kiếm và phân trang.
+7. Cấu trúc response lỗi validation và lỗi nghiệp vụ.
+Không tự giả định các trường dữ liệu, phương thức HTTP hoặc quy tắc nghiệp vụ chưa được backend xác nhận.
+
+## 17. Triển khai trong repository
+
+Đã nối đủ năm route trong `src/app/router/AppRouter.tsx`. ManagementLayout dùng SessionBoundary
+để thử khôi phục session bằng refresh cookie trước khi ProtectedRoute và RoleGuard kiểm tra quyền.
+Người chưa đăng nhập chuyển đến `/login`; CUSTOMER hoặc STAFF truy cập trang thêm/sửa chuyển
+đến `/forbidden`. Trang login dùng API email/password có sẵn; không có tài khoản demo hoặc role
+giả lập trong code production. Header có liên kết Máy bay và đăng nhập/đăng xuất.
+
+Hợp đồng được xác nhận trực tiếp từ AircraftController và các record DTO Java:
+
+- GET danh sách trả `AircraftResponse[]`, gồm id, registrationNo, status; không có bộ lọc hoặc phân trang server.
+- GET chi tiết trả AircraftResponse. ID phải là UUID; ID sai không phát sinh request.
+- POST tạo và PUT cập nhật chỉ gửi registrationNo. Giá trị bắt buộc, không quá 50 ký tự;
+  backend chuẩn hóa in hoa, kiểm tra trùng và giữ nguyên status/ghế khi cập nhật.
+- GET ghế trả `AircraftSeatListItem[]`, chỉ gồm id, seatNumber, seatClass. Không có hàng/cột/lối đi;
+  AircraftSeatMap hiển thị bảng ghế cùng tổng số ghế, không suy diễn bố trí cabin hoặc trạng thái đặt chỗ.
+- Trạng thái máy bay: ACTIVE, BLOCKED, DELETED. Hạng ghế: ECONOMY, BUSINESS, FIRST.
+
+Tái sử dụng Axios/DTO/query keys hiện có; aircraftQueryKeys re-export nguồn chung.
+Tìm kiếm số đăng ký và phân trang 10 máy bay/trang chạy trên mảng đã tải về. Từ khóa mới
+đưa bảng về trang 1. Các trang đọc xử lý loading, lỗi + retry, 404, 401 và 403.
+
+AircraftForm dùng React Hook Form và Zod chung cho thêm/sửa. Form khóa nút và dùng khóa
+trong handler để tránh gửi lặp, hiển thị lỗi chung từ backend và fieldErrors.registrationNo
+nếu có. Thành công mới hiển thị thông báo/điều hướng; mutation tạo invalidate danh sách,
+mutation sửa cập nhật dữ liệu chi tiết đã được backend xác nhận và invalidate list/detail.
+Form không tự thêm trường model, sức chứa, trạng thái hoặc thông tin chưa có trong DTO.
+
+### Chạy và kiểm tra
+
+Tại thư mục frontend:
+
+```powershell
+npm ci
+npm run dev
+npm run build
+npm run lint
+npm test
+npm run test:e2e
+```
+
+Mở `http://localhost:3000/management/aircrafts`. Dùng tài khoản ADMIN hoặc STAFF hiện có
+trong backend; đăng ký mới chỉ nhận CUSTOMER. Truy cập trực tiếp và refresh URL quản lý
+được hỗ trợ qua cookie refresh của backend. Nếu không có CSRF cookie hợp lệ, backend có
+thể từ chối refresh và người dùng cần đăng nhập lại.
+
+Playwright dùng Chrome đã cài trên máy, chạy các kịch bản quyền, tìm kiếm/phân trang,
+chi tiết/reload/404, ghế/empty, thêm/sửa/hủy, validation, lỗi trùng, chống submit lặp và
+cache invalidation trên cả desktop/mobile. Request được mock trong môi trường test;
+các ca thêm/sửa không thay đổi database thật. Bộ kiểm thử sân bay cũng được chạy lại.
+
+Build và cập nhật Docker từ thư mục gốc:
+
+```powershell
+docker compose up --build -d --no-deps frontend
+```
+
+Sau đó tải lại trình duyệt để lấy bản JavaScript mới. Không cần tạo lại volume hoặc database.
+
+### Kết quả xác minh
+
+- Build TypeScript/Vite và lint thành công; 8 kiểm thử API/schema đạt.
+- Lần chạy E2E đầy đủ có 44/46 ca đạt. Hai ca tạo máy bay bị lỗi selector vì biểu tượng
+  loading làm thay đổi accessible name của nút; đã sửa selector theo nút submit của form
+  và chạy lại cả hai ca desktop/mobile thành công, bao gồm kiểm tra chỉ có một POST.
+- Đã xem ảnh giao diện mobile và kiểm tra không tràn chiều rộng.
+- Đã build/recreate container frontend và mở bản Docker thật ở cổng 3000. Trang sân bay
+  gọi API thật thành công (danh sách hiện rỗng); khách vào trang quản lý được chuyển
+  sang `/login`, không có lỗi JavaScript.
+- Luồng ADMIN/STAFF thêm/sửa được kiểm thử bằng API giả lập; không tạo tài khoản hoặc
+  thay đổi dữ liệu máy bay trong database thật.

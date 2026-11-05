@@ -4,3 +4,6 @@ spring:
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:airline-booking-prod}
       auto-offset-reset: latest
+app:
+  auth:
+    cookie-secure: ${AUTH_COOKIE_SECURE:true}

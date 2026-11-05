@@ -1,4 +1,11 @@
 package com.airline.airline_booking_system.user.repository;
 
-public class RoleRepository {
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.airline.airline_booking_system.user.entity.Roles;
+
+public interface RoleRepository extends JpaRepository<Roles, String> {
+    Optional<Roles> findByName(String name);
 }

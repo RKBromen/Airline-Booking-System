@@ -1,0 +1,6 @@
+package com.airline.airline_booking_system.user.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UpdateProfileRequest(@NotBlank @Size(max = 150) String fullName) { }

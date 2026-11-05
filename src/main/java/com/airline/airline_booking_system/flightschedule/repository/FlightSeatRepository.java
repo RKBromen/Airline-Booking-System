@@ -42,9 +42,12 @@ public interface FlightSeatRepository extends JpaRepository<FlightSeats, String>
           SELECT s
           FROM FlightSeats s
           WHERE s.bookings.id = :bookingId
-            AND s.status = com.airline.airline_booking_system.flightschedule.entity.FlightSeats.FlightSeatsStatus.HELD
+            AND s.status = com.airline.airline_booking_system.flightschedule.enums.FlightSeatStatus.HELD
       """)
   List<FlightSeats> findHeldSeatsByBookingIdForUpdate(
       @Param("bookingId") String bookingId);
 
+
+    @Query("select s from FlightSeats s where s.flight_schedules.id = :scheduleId")
+    List<FlightSeats> findAllByScheduleId(@Param("scheduleId") String scheduleId);
 }

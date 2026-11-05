@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.airline.airline_booking_system.booking.entity.Bookings;
 import com.airline.airline_booking_system.booking.repository.BookingRepository;
 import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
+import com.airline.airline_booking_system.flightschedule.enums.FlightSeatStatus;
 import com.airline.airline_booking_system.flightschedule.repository.FlightSeatRepository;
 import com.airline.airline_booking_system.payment.entity.Payments;
 import com.airline.airline_booking_system.payment.repository.PaymentRepository;
@@ -62,7 +63,7 @@ public class BookingExpirationProcessor {
                 bookingId);
 
         for (FlightSeats seat : heldSeats) {
-            seat.setStatus(FlightSeats.FlightSeatsStatus.AVAILABLE);
+            seat.setStatus(FlightSeatStatus.AVAILABLE);
             seat.setBookings(null);
             seat.setHeld_until(null);
         }
