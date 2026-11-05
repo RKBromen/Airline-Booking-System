@@ -98,6 +98,17 @@ services:
     networks:
       - default
       - kafka-network
+  frontend:
+    build:
+      context: ./airline-booking-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - default
 
 networks:
   kafka-network:

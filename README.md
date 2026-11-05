@@ -81,26 +81,112 @@ Run the airport service and API/security tests with Java 21 and Maven:
 ## Chạy bằng Docker
 
 Yêu cầu: Docker Desktop đang chạy với Linux containers và có Docker Compose.
-Không cần cài Java, Maven hay MySQL trên máy để chạy theo cách này.
+Không cần cài Java, Maven, Node.js hay MySQL trên máy để chạy theo cách này.
+Lần đầu cần Internet để tải image, thư viện Maven và npm.
 
-Tại thư mục chứa `compose.yaml`, chạy:
+### 1. Tạo file cấu hình môi trường
+
+Mở PowerShell tại thư mục gốc `Airline-Booking-System` chứa `compose.yaml`.
+Tạo hai file `.env` từ file mẫu nếu chưa có; các lệnh dưới đây giữ nguyên file đã tồn tại:
 
 ```powershell
-docker compose up --build -d
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+if (-not (Test-Path airline-booking-frontend/.env)) {
+    Copy-Item airline-booking-frontend/.env.example airline-booking-frontend/.env
+}
 ```
 
-Docker sẽ build ứng dụng bằng Java 21 và Maven, khởi động MySQL 8.4,
-chờ database sẵn sàng rồi chạy Spring Boot ở cổng 8080.
-Flyway tự chạy migration trong `src/main/resources/db/migration`.
-Lần đầu cần Internet để tải image và thư viện Maven.
+File **`.env` ở thư mục gốc** được Docker Compose đọc để cấu hình cổng,
+database và backend. Các giá trị cho môi trường local:
 
-Ứng dụng được truy cập tại http://localhost:8080. Project chưa có trang chủ,
-nên truy cập `/` có thể trả về 404 dù ứng dụng đã chạy.
+```dotenv
+APP_PORT=8080
+FRONTEND_PORT=3000
+DB_PASSWORD=airline_local
+DB_ROOT_PASSWORD=root_local
+JWT_SECRET=replace-with-a-random-secret-at-least-32-bytes-long
+JWT_EXPIRATION_SECONDS=3600
+REFRESH_TOKEN_EXPIRY_DAYS=30
+AUTH_COOKIE_SECURE=false
+FRONTEND_ORIGIN=http://localhost:3000
+OAUTH2_FRONTEND_REDIRECT_URI=http://localhost:3000/auth/callback
+```
+
+Thay `JWT_SECRET` bằng khóa ngẫu nhiên trước khi chạy. Có thể tạo khóa bằng
+PowerShell, rồi chép kết quả vào dòng `JWT_SECRET=` trong `.env`:
+
+```powershell
+$jwtBytes = New-Object byte[] 32
+$jwtRng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+try { $jwtRng.GetBytes($jwtBytes) } finally { $jwtRng.Dispose() }
+[Convert]::ToBase64String($jwtBytes)
+```
+
+Compose yêu cầu `JWT_SECRET` có giá trị; backend yêu cầu khóa ít nhất 32 byte.
+Các biến Google/Facebook trong file mẫu chỉ cần thay bằng thông tin thật khi sử dụng OAuth.
+Giữ `AUTH_COOKIE_SECURE=false` khi chạy local qua HTTP.
+
+File **`airline-booking-frontend/.env`** được Vite đọc khi build frontend:
+
+```dotenv
+VITE_API_BASE_URL=/api/v1
+```
+
+Giữ URL tương đối này khi chạy Compose: trình duyệt gọi
+`http://localhost:3000/api/v1/...`, Nginx chuyển tiếp sang `http://app:8080/api/v1/...`
+trong mạng Docker. Tên `app` chỉ dùng bên trong Docker, không dùng làm URL API
+trong trình duyệt. Các biến `VITE_*` được đóng gói vào JavaScript công khai,
+không đặt JWT secret, mật khẩu database hoặc client secret trong file frontend.
+
+Hai file `.env` có vai trò riêng: thêm `VITE_API_BASE_URL` vào `.env` gốc không
+tự truyền biến đó vào bước build frontend. Sửa biến Vite cần build lại image frontend;
+chỉ restart container không cập nhật nội dung đã build. Không commit file `.env`.
+
+### 2. Build và khởi động
+
+Chạy từ thư mục gốc:
+
+```powershell
+docker compose config --quiet
+docker compose up --build -d
+docker compose ps
+```
+
+Compose khởi động các dịch vụ:
+
+- `db`: MySQL 8.4; Flyway tự chạy migration trong `src/main/resources/db/migration` khi backend khởi động.
+- `kafka`: Kafka dùng cho producer/consumer của backend.
+- `app`: build bằng Java 21 và Maven, chờ MySQL healthy rồi chạy Spring Boot ở cổng nội bộ 8080.
+- `frontend`: build React/Vite bằng Node.js 22 rồi phục vụ file tĩnh bằng Nginx ở cổng nội bộ 80.
+- `kafka-ui`: giao diện xem Kafka.
+
+Frontend phụ thuộc vào việc container `app` đã bắt đầu chạy, chưa đợi backend
+sẵn sàng nhận request. Nếu API báo 502 ngay sau khi khởi động, xem log backend
+và đợi quá trình khởi động hoàn tất.
+
+### 3. Truy cập ứng dụng
+
+- Frontend: [http://localhost:3000](http://localhost:3000).
+- Backend/Swagger: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
+- OpenAPI JSON: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs).
+- Kafka UI: [http://localhost:8081](http://localhost:8081).
+
+Trang `/` của backend tại cổng 8080 có thể trả 404; mở cổng 3000 để xem frontend.
+MySQL không mở cổng ra máy host, chỉ được truy cập trong mạng Compose.
+
+Nếu cổng 3000 đã được dùng, ví dụ đổi `FRONTEND_PORT=3001`, đồng thời cập nhật
+`FRONTEND_ORIGIN=http://localhost:3001` và
+`OAUTH2_FRONTEND_REDIRECT_URI=http://localhost:3001/auth/callback` trong `.env` gốc,
+rồi chạy lại `docker compose up -d`. Khi đó mở frontend tại cổng 3001.
+Nếu đổi `APP_PORT`, dùng cổng mới khi truy cập trực tiếp backend/Swagger;
+Nginx vẫn gọi `app:8080`, không cần đổi `VITE_API_BASE_URL`.
+Cổng 8081 đang dành cho Kafka UI, nên không đặt `APP_PORT=8081` nếu chưa đổi
+mapping cổng của `kafka-ui` trong `compose.yaml`.
 
 ## Swagger UI
 
-Sau khi ứng dụng khởi động, mở http://localhost:8080/swagger-ui.html.
-Tài liệu OpenAPI JSON nằm tại http://localhost:8080/v3/api-docs.
+Sau khi ứng dụng khởi động, mở [Swagger UI](http://localhost:8080/swagger-ui.html).
+Tài liệu [OpenAPI JSON](http://localhost:8080/v3/api-docs) cũng được phục vụ bởi backend.
 Nếu đổi `APP_PORT`, thay cổng trong các địa chỉ tương ứng.
 
 Trong nhóm **Kafka Test**, chọn `POST /api/kafka/test`, bấm **Try it out**,
@@ -124,41 +210,50 @@ docker compose ps
 docker compose logs -f app
 ```
 
+Xem log frontend hoặc các dịch vụ còn lại:
+
+```powershell
+docker compose logs -f frontend
+docker compose logs -f db kafka kafka-ui
+```
+
+Sau khi sửa frontend hoặc `airline-booking-frontend/.env`, build lại frontend:
+
+```powershell
+docker compose up --build -d --no-deps frontend
+```
+
+Sau khi sửa Java, build lại backend:
+
+```powershell
+docker compose up --build -d --no-deps app
+```
+
+Các lệnh `--no-deps` dùng khi những dịch vụ phụ thuộc đã chạy. Để build và cập nhật
+toàn bộ hệ thống, dùng `docker compose up --build -d` tại thư mục gốc.
+
 Dừng các container (giữ dữ liệu MySQL):
 
 ```powershell
 docker compose down
 ```
 
-Sau khi thay đổi source, chạy lại `docker compose up --build -d`.
-Dockerfile bỏ qua test khi đóng gói vì test Spring Boot hiện cần database.
+`docker compose down` cũng giữ dữ liệu Kafka. Dockerfile backend đóng gói với
+`-DskipTests` vì các bài test tích hợp cần database; Dockerfile frontend chạy
+`npm run build` để kiểm tra TypeScript và tạo bản build Vite, không chạy `npm test`.
 
-Vì test hiện có dùng @SpringBootTest, nó khởi động Spring Boot và cần kết nối MySQL. Trong bước build image, MySQL chưa chạy nên test có thể thất bại.
-Khi chạy docker compose up --build -d, thứ tự là:
-1. Build image ứng dụng, bỏ qua test.
-2. Khởi động MySQL và chờ sẵn sàng.
-3. Chạy ứng dụng và kết nối MySQL.
-## Cấu hình tùy chọn
-
-Cấu hình mặc định phục vụ chạy local. Để đổi cổng hoặc mật khẩu,
-tạo `.env` từ file mẫu trước lần chạy đầu:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Sửa `APP_PORT`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` và `JWT_SECRET` trong `.env`.
-`JWT_SECRET` phải có ít nhất 32 byte ngẫu nhiên; không dùng giá trị mẫu khi triển khai thật.
-Ví dụ `APP_PORT=8081` thì truy cập http://localhost:8081.
-File `.env` được bỏ qua trong Git và khi build image.
+### Lưu dữ liệu và xử lý lỗi cấu hình
 
 MySQL lưu dữ liệu trong volume `mysql_data`. Các biến khởi tạo database
 và mật khẩu chỉ có tác dụng khi volume còn trống; sửa `.env` không đổi
-mật khẩu của database đã được khởi tạo.
+mật khẩu của database đã được khởi tạo. Nếu backend báo lỗi đăng nhập MySQL
+sau khi đổi `DB_PASSWORD`, cần dùng lại mật khẩu hiện tại hoặc chủ động đổi
+mật khẩu user trong database cho khớp.
 
 Trong Docker, ứng dụng kết nối MySQL qua tên dịch vụ `db`, không phải
 `localhost`. Compose truyền cấu hình này qua biến môi trường để ghi đè
-`application.properties`. MySQL chỉ được mở trong mạng nội bộ Compose.
+`application.yml`. Nếu Compose báo thiếu `JWT_SECRET`, kiểm tra file `.env`
+gốc và bảo đảm đang chạy lệnh tại thư mục chứa `compose.yaml`.
 
 ## Authentication và User Management
 
@@ -180,3 +275,8 @@ dùng một lần tại `OAUTH2_FRONTEND_REDIRECT_URI` và đổi mã qua
 Để bật đăng nhập provider thật, đặt `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
 `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET` trong `.env`. Giá trị mặc định chỉ
 giúp ứng dụng khởi động local, không xác thực được với Google/Facebook.
+
+Nginx frontend hiện chỉ proxy `/api/`. Để chạy trọn luồng OAuth bắt đầu từ
+frontend, cần bổ sung proxy `/oauth2/` và `/login/oauth2/` về backend, đồng thời
+chốt callback URL và forwarded headers tương ứng. Cấu hình hiện tại chưa bao
+gồm các proxy OAuth này.

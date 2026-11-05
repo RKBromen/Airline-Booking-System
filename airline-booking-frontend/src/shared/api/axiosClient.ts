@@ -1,67 +1,165 @@
-import axios from 'axios'
+
+import axios, {
+  type AxiosRequestConfig,
+} from 'axios'
+
 import { useAuthStore } from '../../features/auth/store/auth.store'
 import type { LoginResponse } from '../../features/auth/types/auth.dto'
 import { endpoints } from './endpoints'
 import { normalizeApiError } from './apiError'
 
 declare module 'axios' {
-  interface AxiosRequestConfig { _authRetried?: boolean }
-}
-
-export const apiBaseURL = import.meta.env?.VITE_API_BASE_URL || '/api/v1'
-const options = {
-  baseURL: apiBaseURL, timeout: 20_000, withCredentials: true,
-  withXSRFToken: true, xsrfCookieName: 'XSRF-TOKEN', xsrfHeaderName: 'X-XSRF-TOKEN',
-}
-export const axiosClient = axios.create(options)
-// No auth interceptors here: a rejected refresh must never refresh recursively.
-const sessionClient = axios.create(options)
-let refreshing: Promise<LoginResponse> | null = null
-
-export async function refreshSession(): Promise<LoginResponse> {
-  if (!refreshing) {
-    const previousVersion = useAuthStore.getState().sessionVersion
-    refreshing = sessionClient.post<LoginResponse>(endpoints.auth.refresh).then(({ data }) => {
-      // Do not resurrect a session cleared/replaced while a request was in flight.
-      if (useAuthStore.getState().sessionVersion === previousVersion) useAuthStore.getState().setSession(data)
-      return data
-    }).catch(error => {
-      if (useAuthStore.getState().sessionVersion === previousVersion) useAuthStore.getState().clearSession()
-      throw normalizeApiError(error)
-    }).finally(() => { refreshing = null })
+  interface AxiosRequestConfig {
+    _authRetried?: boolean
   }
-  return refreshing
 }
 
-axiosClient.interceptors.request.use(config => {
-  const token = useAuthStore.getState().accessToken
-  if (token) config.headers.set('Authorization', `Bearer ${token}`)
+export const apiBaseURL =
+  import.meta.env.VITE_API_BASE_URL || '/api/v1'
+
+const axiosConfig: AxiosRequestConfig = {
+  baseURL: apiBaseURL,
+  timeout: 20_000,
+  withCredentials: true,
+  withXSRFToken: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+}
+
+export const axiosClient = axios.create(axiosConfig)
+
+// Separate client to prevent recursive refresh.
+const sessionClient = axios.create(axiosConfig)
+
+const SESSION_ENDPOINTS = new Set<string>([
+  endpoints.auth.login,
+  endpoints.auth.register,
+  endpoints.auth.refresh,
+  endpoints.auth.exchange,
+  endpoints.auth.logout,
+])
+
+// 2. Token refresh
+
+let refreshPromise: Promise<LoginResponse> | null = null
+
+export function refreshSession(): Promise<LoginResponse> {
+  if (refreshPromise) {
+    return refreshPromise
+  }
+
+  const sessionVersion = useAuthStore.getState().sessionVersion
+
+  refreshPromise = sessionClient
+    .post<LoginResponse>(endpoints.auth.refresh)
+    .then(({ data }) => {
+      const auth = useAuthStore.getState()
+
+      if (auth.sessionVersion !== sessionVersion) {
+        throw new Error('Session changed during refresh')
+      }
+
+      auth.setSession(data)
+      return data
+    })
+    .catch((error: unknown) => {
+      const auth = useAuthStore.getState()
+
+      if (
+        auth.sessionVersion === sessionVersion &&
+        axios.isAxiosError(error) &&
+        [401, 403].includes(error.response?.status ?? 0)
+      ) {
+        auth.clearSession()
+      }
+
+      throw normalizeApiError(error)
+    })
+    .finally(() => {
+      refreshPromise = null
+    })
+
+  return refreshPromise
+}
+
+// 3. Request interceptor
+
+axiosClient.interceptors.request.use((config) => {
+  const { accessToken } = useAuthStore.getState()
+
+  if (accessToken) {
+    config.headers.set('Authorization', `Bearer ${accessToken}`)
+  }
+
   return config
 })
 
-axiosClient.interceptors.response.use(response => response, async error => {
-  const config = axios.isAxiosError(error) ? error.config : undefined
-  const token = useAuthStore.getState().accessToken
-  const sessionEndpoints: string[] = [endpoints.auth.login, endpoints.auth.register,
-    endpoints.auth.refresh, endpoints.auth.exchange, endpoints.auth.logout]
-  // Session endpoints handle their own 401s; retry protected calls at most once.
-  if (config && error.response?.status === 401 && token && !sessionEndpoints.includes(config.url ?? '')
-      && !config._authRetried) {
+// 4. Response interceptor
+
+axiosClient.interceptors.response.use(
+  (response) => response,
+  async (error: unknown) => {
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(normalizeApiError(error))
+    }
+
+    const config = error.config
+    const auth = useAuthStore.getState()
+
+    if (!config || error.response?.status !== 401) {
+      return Promise.reject(normalizeApiError(error))
+    }
+
+    if (
+      config._authRetried ||
+      SESSION_ENDPOINTS.has(config.url ?? '') ||
+      !auth.accessToken
+    ) {
+      // A retried request still failed with its current token.
+      if (
+        config?._authRetried &&
+        auth.accessToken &&
+        config.headers.get('Authorization') ===
+          `Bearer ${auth.accessToken}`
+      ) {
+        auth.clearSession()
+      }
+
+      return Promise.reject(normalizeApiError(error))
+    }
+
+    // 5. Retry protected request once
+
     config._authRetried = true
-    // A parallel request may already have refreshed while this 401 was in flight.
+
+    const currentToken = auth.accessToken
     const sentToken = config.headers.get('Authorization')
-    if (sentToken !== `Bearer ${token}`) {
-      config.headers.set('Authorization', `Bearer ${token}`)
+
+    // Another request may have refreshed the token already.
+    if (sentToken !== `Bearer ${currentToken}`) {
+      config.headers.set('Authorization', `Bearer ${currentToken}`)
       return axiosClient.request(config)
     }
-    const session = await refreshSession()
-    if (useAuthStore.getState().accessToken !== session.accessToken) throw normalizeApiError(error)
-    config.headers.set('Authorization', `Bearer ${session.accessToken}`)
-    return axiosClient.request(config)
-  }
-  if (config?._authRetried && error.response?.status === 401
-      && config.headers.get('Authorization') === `Bearer ${useAuthStore.getState().accessToken}`) {
-    useAuthStore.getState().clearSession()
-  }
-  throw normalizeApiError(error)
-})
+
+    try {
+      const session = await refreshSession()
+
+      // Prevent retry with a stale or replaced session.
+      if (
+        useAuthStore.getState().accessToken !==
+        session.accessToken
+      ) {
+        throw normalizeApiError(error)
+      }
+
+      config.headers.set(
+        'Authorization',
+        `Bearer ${session.accessToken}`,
+      )
+
+      return axiosClient.request(config)
+    } catch (refreshError) {
+      return Promise.reject(normalizeApiError(refreshError))
+    }
+  },
+)
