@@ -82,21 +82,20 @@ Frontend sẽ được chia thành bốn khu vực:
 ```
 Lưu ý: Các route `new`, `edit`, `seats`, `checkout` là màn hình hoặc bước giao diện, không nhất thiết phải có endpoint backend cùng tên.
 Trong thiết kế này, `/flights/:scheduleId` dùng ID của lịch bay thực tế để khách đặt vé; còn `/management/flights/:id` dùng ID của chuyến bay/tuyến bay để quản lý. Hai ID không được sử dụng lẫn nhau.
-
 ## 3. Danh sách route chi tiết
 ### 3.1. Public & Authentication
 
-| Frontend Route               | Chức năng                      | API chính                                |
-| ---------------------------- | ------------------------------ | ---------------------------------------- |
-| `/`                          | Trang chủ, form tìm chuyến bay | `GET /airports`, `GET /search/flights`   |
-| `/login`                     | Đăng nhập                      | `POST /auth/login`                       |
-| `/register`                  | Đăng ký                        | `POST /auth/register`                    |
-| `/auth/callback`             | Xử lý kết quả OAuth2           |                                          |
-| `/airports`                  | Danh sách sân bay              | `GET /airports`                          |
-| `/airports/:id`              | Chi tiết sân bay               | `GET /airports/{id}`                     |
-| `/flights`                   | Kết quả tìm kiếm chuyến bay    | `GET /search/flights`                    |
-| `/flights/:scheduleId`       | Chi tiết lịch bay để đặt vé    | `GET /search/flights/{scheduleId}`       |
-| `/flights/:scheduleId/seats` | Chọn ghế                       | `GET /search/flights/{scheduleId}/seats` |
+| Frontend Route               | Chức năng                      | API chính                                | Phân công | Deadline |
+| ---------------------------- | ------------------------------ | ---------------------------------------- | --------- | -------- |
+| `/`                          | Trang chủ, form tìm chuyến bay | `GET /airports`, `GET /search/flights`   | Lâm       | 11/11    |
+| `/login`                     | Đăng nhập                      | `POST /auth/login`                       | Lâm       | 11/11    |
+| `/register`                  | Đăng ký                        | `POST /auth/register`                    | Lâm       | 11/11    |
+| `/auth/callback`             | Xử lý kết quả OAuth2           |                                          | Lâm       | 11/11    |
+| `/airports`                  | Danh sách sân bay              | `GET /airports`                          | Nhi       | 8/11     |
+| `/airports/:id`              | Chi tiết sân bay               | `GET /airports/{id}`                     | Nhi       | 8/11     |
+| `/flights`                   | Kết quả tìm kiếm chuyến bay    | `GET /search/flights`                    | Tín       | 8/11     |
+| `/flights/:scheduleId`       | Chi tiết lịch bay để đặt vé    | `GET /search/flights/{scheduleId}`       | Tín       | 8/11     |
+| `/flights/:scheduleId/seats` | Chọn ghế                       | `GET /search/flights/{scheduleId}/seats` | Tín       | 8/11     |
 Trong bảng này và các bảng tiếp theo, endpoint API được viết rút gọn, bỏ tiền tố `/api/v1`.
 Có thể lưu điều kiện tìm chuyến bay trên URL:
 ```
@@ -105,55 +104,55 @@ Có thể lưu điều kiện tìm chuyến bay trên URL:
 Cách này cho phép người dùng tải lại trang hoặc chia sẻ liên kết mà vẫn giữ được điều kiện tìm kiếm.
 ### 3.2. Customer — Đặt vé và thanh toán
 
-| Frontend Route                    | Chức năng                          | API chính                            |
-| --------------------------------- | ---------------------------------- | ------------------------------------ |
-| `/flights/:scheduleId/passengers` | Nhập thông tin hành khách          | Chưa có API riêng; dùng dữ liệu form |
-| `/bookings/:bookingId`            | Chi tiết booking                   | `GET /bookings/{id}`                 |
-| `/bookings/:bookingId/checkout`   | Xác nhận và khởi tạo thanh toán    | `POST /bookings/{id}/payments`       |
-| `/bookings/:bookingId/payments`   | Lịch sử giao dịch                  | `GET /bookings/{id}/payments`        |
-| `/payment/result`                 | Kết quả quay về từ cổng thanh toán | `GET /payments/{id}` và booking      |
-| `/my-bookings`                    | Lịch sử đặt vé cá nhân             | `GET /bookings/me`                   |
-| `/profile`                        | Thông tin tài khoản                | `GET /auth/me`                       |
-| `/profile/edit`                   | Cập nhật hồ sơ                     | `PUT /users/me`                      |
-| `/profile/password`               | Đổi mật khẩu                       | `PUT /users/me/password`             |
-| `/profile/linked-accounts`        | Quản lý Google/Facebook liên kết   | `GET /auth/providers`                |
+| Frontend Route                    | Chức năng                          | API chính                            | Phân công | Deadline |
+| --------------------------------- | ---------------------------------- | ------------------------------------ | --------- | -------- |
+| `/flights/:scheduleId/passengers` | Nhập thông tin hành khách          | Chưa có API riêng; dùng dữ liệu form | Nghiệp    | 11/11    |
+| `/bookings/:bookingId`            | Chi tiết booking                   | `GET /bookings/{id}`                 | Nghiệp    | 11/11    |
+| `/bookings/:bookingId/checkout`   | Xác nhận và khởi tạo thanh toán    | `POST /bookings/{id}/payments`       | Nghiệp    | 11/11    |
+| `/bookings/:bookingId/payments`   | Lịch sử giao dịch                  | `GET /bookings/{id}/payments`        | Nghiệp    | 11/11    |
+| `/payment/result`                 | Kết quả quay về từ cổng thanh toán | `GET /payments/{id}` và booking      | Nghiệp    | 11/11    |
+| `/my-bookings`                    | Lịch sử đặt vé cá nhân             | `GET /bookings/me`                   | Nghiệp    | 11/11    |
+| `/profile`                        | Thông tin tài khoản                | `GET /auth/me`                       | Lâm       | 11/11    |
+| `/profile/edit`                   | Cập nhật hồ sơ                     | `PUT /users/me`                      | Lâm       | 11/11    |
+| `/profile/password`               | Đổi mật khẩu                       | `PUT /users/me/password`             | Lâm       | 11/11    |
+| `/profile/linked-accounts`        | Quản lý Google/Facebook liên kết   | `GET /auth/providers`                | Lâm       | 11/11    |
 Lưu ý: `/flights/:scheduleId/passengers` không cần API ghi dữ liệu riêng. Khi người dùng nhập xong hành khách và chọn ghế, frontend sẽ gọi `POST /api/v1/bookings` để tạo booking và giữ ghế.
 ### 3.3. Management — STAFF và ADMIN
 
-| Frontend Route                           | Chức năng                   | Role         |
-| ---------------------------------------- | --------------------------- | ------------ |
-| `/management/aircrafts`                  | Danh sách máy bay           | ADMIN, STAFF |
-| `/management/aircrafts/:id`              | Chi tiết máy bay            | ADMIN, STAFF |
-| `/management/aircrafts/:id/seats`        | Xem sơ đồ ghế vật lý        | ADMIN, STAFF |
-| `/management/aircrafts/new`              | Thêm máy bay                | ADMIN        |
-| `/management/aircrafts/:id/edit`         | Cập nhật máy bay            | ADMIN        |
-| `/management/airports`                   | Danh sách sân bay           | ADMIN, STAFF |
-| `/management/airports/:id`               | Chi tiết sân bay            | ADMIN, STAFF |
-| `/management/airports/new`               | Thêm sân bay                | ADMIN        |
-| `/management/airports/:id/edit`          | Cập nhật sân bay            | ADMIN        |
-| `/management/flights`                    | Danh sách tuyến bay         | ADMIN, STAFF |
-| `/management/flights/:id`                | Chi tiết tuyến bay          | ADMIN, STAFF |
-| `/management/flights/new`                | Thêm tuyến bay              | ADMIN        |
-| `/management/flights/:id/edit`           | Cập nhật tuyến bay          | ADMIN        |
-| `/management/flight-schedules`           | Danh sách lịch bay          | ADMIN, STAFF |
-| `/management/flight-schedules/:id`       | Chi tiết lịch bay           | ADMIN, STAFF |
-| `/management/flight-schedules/new`       | Tạo lịch bay                | ADMIN        |
-| `/management/flight-schedules/:id/edit`  | Sửa lịch bay                | ADMIN        |
-| `/management/flight-schedules/:id/seats` | Ghế và giá vé theo lịch bay | ADMIN, STAFF |
-| `/management/bookings`                   | Booking toàn hệ thống       | ADMIN, STAFF |
-| `/management/bookings/:id`               | Chi tiết booking            | ADMIN, STAFF |
-| `/management/payments`                   | Danh sách thanh toán        | ADMIN, STAFF |
-| `/management/payments/:id`               | Chi tiết giao dịch          | ADMIN, STAFF |
+| Frontend Route                           | Chức năng                   | Role         | Phân công | Phân công |
+| ---------------------------------------- | --------------------------- | ------------ | --------- | --------- |
+| `/management/aircrafts`                  | Danh sách máy bay           | ADMIN, STAFF | Nhi       | 13/11     |
+| `/management/aircrafts/:id`              | Chi tiết máy bay            | ADMIN, STAFF | Nhi       | 13/11     |
+| `/management/aircrafts/:id/seats`        | Xem sơ đồ ghế vật lý        | ADMIN, STAFF | Nhi       | 13/11     |
+| `/management/aircrafts/new`              | Thêm máy bay                | ADMIN        | Nhi       | 13/11     |
+| `/management/aircrafts/:id/edit`         | Cập nhật máy bay            | ADMIN        | Nhi       | 13/11     |
+| `/management/airports`                   | Danh sách sân bay           | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/airports/:id`               | Chi tiết sân bay            | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/airports/new`               | Thêm sân bay                | ADMIN        | Tín       | 13/11     |
+| `/management/airports/:id/edit`          | Cập nhật sân bay            | ADMIN        | Tín       | 13/11     |
+| `/management/flights`                    | Danh sách tuyến bay         | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/flights/:id`                | Chi tiết tuyến bay          | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/flights/new`                | Thêm tuyến bay              | ADMIN        | Tín       | 13/11     |
+| `/management/flights/:id/edit`           | Cập nhật tuyến bay          | ADMIN        | Tín       | 13/11     |
+| `/management/flight-schedules`           | Danh sách lịch bay          | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/flight-schedules/:id`       | Chi tiết lịch bay           | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/flight-schedules/new`       | Tạo lịch bay                | ADMIN        | Tín       | 13/11     |
+| `/management/flight-schedules/:id/edit`  | Sửa lịch bay                | ADMIN        | Tín       | 13/11     |
+| `/management/flight-schedules/:id/seats` | Ghế và giá vé theo lịch bay | ADMIN, STAFF | Tín       | 13/11     |
+| `/management/bookings`                   | Booking toàn hệ thống       | ADMIN, STAFF | Nghiệp    | 15/11     |
+| `/management/bookings/:id`               | Chi tiết booking            | ADMIN, STAFF | Nghiệp    | 15/11     |
+| `/management/payments`                   | Danh sách thanh toán        | ADMIN, STAFF | Nghiệp    | 15/11     |
+| `/management/payments/:id`               | Chi tiết giao dịch          | ADMIN, STAFF | Nghiệp    | 15/11     |
 STAFF được xem và thực hiện những thao tác nghiệp vụ mà backend cấp phép. Không nên hiển thị chức năng thêm, sửa hoặc xóa dành riêng cho ADMIN.
 ### 3.4. Admin — Quản lý người dùng và phân quyền
 
-| Frontend Route          | Chức năng             | API chính         |
-| ----------------------- | --------------------- | ----------------- |
-| `/admin/users`          | Danh sách người dùng  | `GET /users`      |
-| `/admin/users/new`      | Thêm tài khoản        | `POST /users`     |
-| `/admin/users/:id`      | Chi tiết tài khoản    | `GET /users/{id}` |
-| `/admin/users/:id/edit` | Cập nhật tài khoản    | `PUT /users/{id}` |
-| `/admin/roles`          | Xem danh sách vai trò | `GET /roles`      |
+| Frontend Route          | Chức năng             | API chính         | Phân công | Deadline |
+| ----------------------- | --------------------- | ----------------- | --------- | -------- |
+| `/admin/users`          | Danh sách người dùng  | `GET /users`      | Lâm       | 15/11    |
+| `/admin/users/new`      | Thêm tài khoản        | `POST /users`     | Lâm       | 15/11    |
+| `/admin/users/:id`      | Chi tiết tài khoản    | `GET /users/{id}` | Lâm       | 15/11    |
+| `/admin/users/:id/edit` | Cập nhật tài khoản    | `PUT /users/{id}` | Lâm       | 15/11    |
+| `/admin/roles`          | Xem danh sách vai trò | `GET /roles`      | Lâm       | 15/11    |
 Trang chi tiết người dùng còn có các thao tác thay đổi trạng thái, gán và gỡ vai trò, thông qua các API `PATCH /users/{id}/status`, `POST /users/{id}/roles` và `DELETE /users/{id}/roles/{roleId}`.
 Không cần tạo mỗi thao tác thành một route riêng; có thể sử dụng `Modal`, `Drawer` hoặc form ngay trong trang chi tiết.
 ### 4. Phân quyền truy cập Route
@@ -186,14 +185,14 @@ STAFF hoặc ADMIN vẫn có thể truy cập Customer Booking nếu tài khoả
 ##### 4.3. PublicRoute — Các trang công khai
 Quy tắc: Không yêu cầu đăng nhập. Tất cả người dùng đều được phép truy cập.
 
-|Route|Chức năng|
-|---|---|
-|`/`|Trang chủ|
-|`/airports`|Danh sách sân bay|
-|`/airports/:id`|Chi tiết sân bay|
-|`/flights`|Tìm kiếm chuyến bay|
-|`/flights/:scheduleId`|Xem chi tiết lịch bay để đặt vé|
-|`/flights/:scheduleId/seats`|Xem sơ đồ ghế và chọn ghế tạm thời|
+| Route                        | Chức năng                          |
+| ---------------------------- | ---------------------------------- |
+| `/`                          | Trang chủ                          |
+| `/airports`                  | Danh sách sân bay                  |
+| `/airports/:id`              | Chi tiết sân bay                   |
+| `/flights`                   | Tìm kiếm chuyến bay                |
+| `/flights/:scheduleId`       | Xem chi tiết lịch bay để đặt vé    |
+| `/flights/:scheduleId/seats` | Xem sơ đồ ghế và chọn ghế tạm thời |
 Quy tắc triển khai:
 1. Không kiểm tra Access Token trước khi hiển thị trang.
 2. Không yêu cầu role.
