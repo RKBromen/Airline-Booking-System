@@ -3,6 +3,7 @@ package com.airline.airline_booking_system.booking.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,11 @@ import com.airline.airline_booking_system.booking.dto.BookingDetailByCode;
 import com.airline.airline_booking_system.booking.dto.BookingHistory;
 import com.airline.airline_booking_system.booking.dto.BookingResponse;
 import com.airline.airline_booking_system.booking.service.BookingService;
+import com.airline.airline_booking_system.payment.dto.PaymentCreateRequest;
+import com.airline.airline_booking_system.payment.dto.PaymentHistoryDTO;
+import com.airline.airline_booking_system.payment.dto.PaymentResponse;
+import com.airline.airline_booking_system.payment.service.PaymentConfirmationService;
+import com.airline.airline_booking_system.payment.service.PaymentService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("api/v1/bookings")
 public class BookingController {
     private final BookingService bookingService;
+    private final PaymentService paymentService;
+    private final PaymentConfirmationService paymentConfirmationService;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, PaymentService paymentService,
+            PaymentConfirmationService paymentConfirmationService) {
         this.bookingService = bookingService;
+        this.paymentService = paymentService;
+        this.paymentConfirmationService = paymentConfirmationService;
     }
 
     @PostMapping
@@ -72,4 +83,20 @@ public class BookingController {
         return ResponseEntity.ok(
                 bookingService.cancelBooking(id, userId));
     }
+
+    @GetMapping("/{bookingId}/payments")
+    public List<PaymentHistoryDTO> getPaymentByBookingId(@PathVariable("bookingId") String bookingId) {
+        return paymentService.findPaymentByBookingId(bookingId);
+    }
+
+    @PostMapping("/{bookingId}/payments")
+    public ResponseEntity<PaymentResponse> postMethodName(@PathVariable("bookingId") String bookingId,
+            @RequestBody PaymentCreateRequest paymentMethod) {
+        String userId = requestUserIdForTesting();
+
+        PaymentResponse response = paymentConfirmationService.createPendingPayments(bookingId, userId, paymentMethod);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
 }

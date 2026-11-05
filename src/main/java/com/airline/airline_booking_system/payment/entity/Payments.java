@@ -44,6 +44,7 @@ public class Payments {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;
+    @Column(unique = true)
     private String transaction_id;
     @Column(nullable = false)
     private LocalDateTime created_at;

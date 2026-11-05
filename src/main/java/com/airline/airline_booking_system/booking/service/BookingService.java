@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.*;
 
 import com.airline.airline_booking_system.booking.dto.BookedPassengerResponse;
 import com.airline.airline_booking_system.booking.dto.BookingCancelResponse;
@@ -312,5 +313,31 @@ public class BookingService {
         return new BookingCancelResponse(
                 booking.getId(),
                 booking.getStatus().name());
+    }
+
+    public Bookings validateBooking(String bookingId, String userId) {
+
+        Bookings booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getUsers().getId().equals(userId)) {
+            throw new AccessDeniedException(
+                    "You are not allowed to pay for this booking");
+        }
+
+        if (booking.getStatus() != Bookings.BookingStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Booking is not pending");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (booking.getExpires_at() == null ||
+                !booking.getExpires_at().isAfter(now)) {
+            throw new IllegalStateException(
+                    "Booking payment has expired");
+        }
+
+        return booking;
     }
 }
