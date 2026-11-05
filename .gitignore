@@ -34,3 +34,6 @@ build/
 ### VS Code ###
 .vscode/
 draw/
+
+airline-booking-frontend/node_modules
+airline-booking-frontend/dist
