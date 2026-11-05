@@ -109,7 +109,7 @@ test('logout during initial refresh cannot resurrect the local session', async (
   await new Promise(resolve => setTimeout(resolve, 0))
   useAuthStore.getState().clearSession()
   release()
-  await pending
+  await assert.rejects(pending)
   assert.equal(useAuthStore.getState().accessToken, null)
 })
 

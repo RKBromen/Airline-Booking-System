@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { airportApi } from '../api/airport.api'
 import type { AirportListParams } from '../types/airport.dto'
-import { queryKeys } from '../../../shared/constants/queryKeys'
+import { airportQueryKeys } from '../constants/airportQueryKeys'
 
 export function useAirports(params: AirportListParams = {}) {
-  return useQuery({ queryKey: queryKeys.airports.list(params), queryFn: () => airportApi.list(params) })
+  return useQuery({ queryKey: airportQueryKeys.list(params), queryFn: () => airportApi.list(params), staleTime: 5 * 60 * 1000 })
 }
