@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { fullNameSchema } from '../../../shared/validation/common'
 import { GENDERS } from '../types/booking.enums'
 
-/** Provisional: optional/null passenger fields must be agreed with backend before use. */
+/** Provisional: optional/null passenger fields must be agreed with the system before use. */
 export const createBookingSchema = z.object({
   flightScheduleId: z.uuid(),
   passengers: z.array(z.object({

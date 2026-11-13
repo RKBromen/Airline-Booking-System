@@ -12,7 +12,7 @@ export function AirportListPage() {
   const keyword = searchParams.get('keyword')?.trim() ?? ''
   const airports = useAirports(keyword ? { keyword } : {})
   const data = airports.data ?? []
-  // Backend returns a full array; only the table paginates it.
+  // The system returns a full array; only the table paginates it.
   const page = Math.min(airportPage(searchParams.get('page')), Math.max(1, Math.ceil(data.length / AIRPORT_PAGE_SIZE)))
   const search = (value: string) => {
     setSearchParams(previous => {

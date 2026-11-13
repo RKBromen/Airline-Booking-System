@@ -4,7 +4,7 @@ import type { CreatePaymentRequest } from '../types/payment.dto'
 import { createPaymentSchema } from '../schemas/payment.schema'
 import { queryKeys } from '../../../shared/constants/queryKeys'
 
-/** Example only, pending backend module 9. Redirect does not imply payment success. */
+/** Example only, pending system module 9. Redirect does not imply payment success. */
 export function usePlannedCreatePayment(bookingId: string) {
   const client = useQueryClient()
   return useMutation({

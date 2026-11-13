@@ -1,4 +1,4 @@
-/** Provisional: doc 05-1 module 6; numeric JSON prices need backend confirmation. */
+/** Provisional: doc 05-1 module 6; numeric JSON prices need system confirmation. */
 import type { FlightScheduleStatus } from './flight-schedule.enums'
 
 export interface FlightScheduleRequest {
