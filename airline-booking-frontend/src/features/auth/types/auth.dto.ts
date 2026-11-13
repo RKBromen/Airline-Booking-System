@@ -32,3 +32,4 @@ export interface ProviderListResponse {
   providers: { provider: AuthProvider; linked: boolean }[]
   hasPassword: boolean
 }
+export interface ProviderLinkResponse { authorizationUrl: string }
