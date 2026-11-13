@@ -22,11 +22,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler successHandler;
+    private final OAuth2LoginFailureHandler failureHandler;
 
     public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter,
-            OAuth2LoginSuccessHandler successHandler) {
+            OAuth2LoginSuccessHandler successHandler, OAuth2LoginFailureHandler failureHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.successHandler = successHandler;
+        this.failureHandler = failureHandler;
     }
 
     @Bean
@@ -43,7 +45,7 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/oauth2/**",
                             "/oauth2/**", "/login/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/api/v1/auth/refresh-token", "/api/v1/auth/logout").permitAll()
-                    .requestMatchers("/api/v1/auth/me", "/api/v1/auth/providers", "/api/v1/users/me",
+                    .requestMatchers("/api/v1/auth/me", "/api/v1/auth/providers", "/api/v1/auth/providers/**", "/api/v1/users/me",
                             "/api/v1/users/me/**").authenticated()
                     .requestMatchers("/api/v1/users", "/api/v1/users/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/v1/airports", "/api/v1/airports/**").permitAll()
@@ -54,7 +56,7 @@ public class SecurityConfiguration {
             .exceptionHandling(exceptions -> exceptions
                     .authenticationEntryPoint((request, response, exception) -> response.sendError(401))
                     .accessDeniedHandler((request, response, exception) -> response.sendError(403)))
-            .oauth2Login(oauth -> oauth.successHandler(successHandler))
+            .oauth2Login(oauth -> oauth.successHandler(successHandler).failureHandler(failureHandler))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(httpBasic -> httpBasic.disable());
         return http.build();

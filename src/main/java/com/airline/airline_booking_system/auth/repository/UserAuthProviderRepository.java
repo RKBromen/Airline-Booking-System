@@ -11,4 +11,6 @@ import com.airline.airline_booking_system.auth.enums.AuthProvider;
 public interface UserAuthProviderRepository extends JpaRepository<UserAuthProvider, String> {
     Optional<UserAuthProvider> findByProviderAndProviderUserId(AuthProvider provider, String providerUserId);
     List<UserAuthProvider> findAllByUser_Id(String userId);
+    Optional<UserAuthProvider> findByUser_IdAndProvider(String userId, AuthProvider provider);
+    void deleteByUser_IdAndProvider(String userId, AuthProvider provider);
 }

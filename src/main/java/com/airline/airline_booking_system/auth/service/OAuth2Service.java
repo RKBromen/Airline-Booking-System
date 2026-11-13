@@ -1,6 +1,8 @@
 package com.airline.airline_booking_system.auth.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +28,8 @@ import com.airline.airline_booking_system.user.service.AuthenticationService;
 
 @Service
 public class OAuth2Service {
+    public static final String LINK_FLOW_SESSION_KEY = OAuth2Service.class.getName() + ".LINK_FLOW";
+    private static final long LINK_FLOW_TTL_SECONDS = 300;
     private static final long HANDOFF_TTL_SECONDS = 90;
     private final UserAuthProviderRepository providerRepository;
     private final UserRepository userRepository;
@@ -49,6 +53,57 @@ public class OAuth2Service {
 
     @Transactional
     public AuthSession loginOrRegister(AuthProvider provider, OAuth2User principal) {
+        OAuthIdentity identity = identity(provider, principal);
+        Users user = providerRepository.findByProviderAndProviderUserId(provider, identity.providerId())
+                .map(UserAuthProvider::getUser)
+                .orElseGet(() -> createOAuthUser(provider, identity.providerId(), identity.email(), identity.fullName()));
+        if (user.getStatus() != Users.UserStatus.ACTIVE) {
+            throw new OAuthAccountConflictException("This account is not active");
+        }
+        return authenticationService.createSession(user);
+    }
+
+    @Transactional
+    public void link(String userId, AuthProvider provider, OAuth2User principal) {
+        OAuthIdentity identity = identity(provider, principal);
+        Users user = userRepository.findById(userId)
+                .filter(value -> value.getStatus() == Users.UserStatus.ACTIVE)
+                .orElseThrow(() -> new OAuthAccountConflictException("The account to link is unavailable"));
+        providerRepository.findByProviderAndProviderUserId(provider, identity.providerId()).ifPresent(existing -> {
+            if (!existing.getUser().getId().equals(userId)) {
+                throw new OAuthAccountConflictException("This provider account is already linked to another user");
+            }
+        });
+        providerRepository.findByUser_IdAndProvider(userId, provider).ifPresent(existing -> {
+            if (!existing.getProviderUserId().equals(identity.providerId())) {
+                throw new OAuthAccountConflictException("Another account from this provider is already linked");
+            }
+        });
+        if (providerRepository.findByProviderAndProviderUserId(provider, identity.providerId()).isEmpty()) {
+            UserAuthProvider authProvider = new UserAuthProvider();
+            authProvider.setId(UUID.randomUUID().toString());
+            authProvider.setUser(user);
+            authProvider.setProvider(provider);
+            authProvider.setProviderUserId(identity.providerId());
+            authProvider.setCreatedAt(LocalDateTime.now());
+            providerRepository.save(authProvider);
+        }
+    }
+
+    @Transactional
+    public void unlink(String userId, AuthProvider provider) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new OAuthAccountConflictException("Account was not found"));
+        List<UserAuthProvider> linked = providerRepository.findAllByUser_Id(userId);
+        boolean hasPassword = user.getPassword() != null;
+        boolean providerIsLinked = linked.stream().anyMatch(item -> item.getProvider() == provider);
+        if (providerIsLinked && !hasPassword && linked.size() <= 1) {
+            throw new OAuthAccountConflictException("Set a password or link another provider before removing this sign-in method");
+        }
+        providerRepository.deleteByUser_IdAndProvider(userId, provider);
+    }
+
+    private OAuthIdentity identity(AuthProvider provider, OAuth2User principal) {
         String providerId = firstString(principal.getAttributes(), "sub", "id");
         String email = firstString(principal.getAttributes(), "email");
         boolean emailVerified = provider == AuthProvider.FACEBOOK
@@ -62,13 +117,12 @@ public class OAuth2Service {
         if (normalizedEmail.length() > 255 || !normalizedEmail.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new OAuthAccountConflictException("Provider must return a valid email to continue");
         }
-        Users user = providerRepository.findByProviderAndProviderUserId(provider, providerId)
-                .map(UserAuthProvider::getUser)
-                .orElseGet(() -> createOAuthUser(provider, providerId, normalizedEmail, fullName));
-        if (user.getStatus() != Users.UserStatus.ACTIVE) {
-            throw new OAuthAccountConflictException("This account is not active");
-        }
-        return authenticationService.createSession(user);
+        return new OAuthIdentity(providerId, normalizedEmail, fullName);
+    }
+
+    public boolean isValidLinkFlow(LinkFlow flow, AuthProvider provider) {
+        return flow != null && flow.provider() == provider && flow.createdAt() != null
+                && Instant.now().isBefore(flow.createdAt().plusSeconds(LINK_FLOW_TTL_SECONDS));
     }
 
     @Transactional
@@ -134,4 +188,6 @@ public class OAuth2Service {
     }
 
     private record Handoff(AuthSession session, LocalDateTime expiresAt) { }
+    private record OAuthIdentity(String providerId, String email, String fullName) { }
+    public record LinkFlow(String userId, AuthProvider provider, Instant createdAt) implements java.io.Serializable { }
 }

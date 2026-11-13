@@ -32,8 +32,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (header != null && header.startsWith("Bearer ")) {
+            // OAuth2 login is session-based, but API identity must come from this Bearer token.
+            // Clear a session-restored OAuth principal so its provider ID cannot be mistaken for a user ID.
+            SecurityContextHolder.clearContext();
             JwtTokenService.TokenClaims claims = jwtTokenService.verify(header.substring(7));
             if (claims != null) {
                 Users user = userRepository.findById(claims.userId()).orElse(null);
