@@ -58,8 +58,8 @@ public class UserService {
         if (page < 0 || size < 1 || size > 100) throw new IllegalArgumentException("Invalid page or size");
         String property = switch (sort == null ? "createdAt" : sort) {
             case "email" -> "email";
-            case "fullName" -> "full_name";
-            case "createdAt" -> "created_at";
+            case "fullName" -> "fullName";
+            case "createdAt" -> "createdAt";
             default -> throw new IllegalArgumentException("Unsupported sort field");
         };
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, property));
@@ -96,8 +96,8 @@ public class UserService {
     public UserResponse update(String id, UserUpdateRequest request) {
         Users user = findUser(id);
         requireNotDeleted(user);
-        user.setFull_name(request.fullName().trim());
-        user.setUpdated_at(LocalDateTime.now());
+        user.setFullName(request.fullName().trim());
+        user.setUpdatedAt(LocalDateTime.now());
         return toResponse(users.save(user));
     }
 
@@ -105,7 +105,7 @@ public class UserService {
     public UserResponse updateStatus(String id, UserStatusRequest request) {
         Users user = findUser(id);
         user.setStatus(request.status());
-        user.setUpdated_at(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         if (request.status() != Users.UserStatus.ACTIVE) refreshTokens.revokeAllForUser(id);
         return toResponse(users.save(user));
     }
@@ -114,7 +114,7 @@ public class UserService {
     public void delete(String id) {
         Users user = findUser(id);
         user.setStatus(Users.UserStatus.DELETED);
-        user.setUpdated_at(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         users.save(user);
         refreshTokens.revokeAllForUser(id);
     }
@@ -123,8 +123,8 @@ public class UserService {
     public UserResponse updateOwnProfile(String userId, UpdateProfileRequest request) {
         Users user = findUser(userId);
         requireActive(user);
-        user.setFull_name(request.fullName().trim());
-        user.setUpdated_at(LocalDateTime.now());
+        user.setFullName(request.fullName().trim());
+        user.setUpdatedAt(LocalDateTime.now());
         return toResponse(users.save(user));
     }
 
@@ -136,7 +136,7 @@ public class UserService {
             throw new InvalidCredentialsException();
         }
         user.setPassword(passwordEncoder.encode(request.newPassword()));
-        user.setUpdated_at(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         users.save(user);
         refreshTokens.revokeAllForUser(userId);
     }
@@ -157,7 +157,7 @@ public class UserService {
         List<String> userRoleNames = userRoles.findRoleNamesByUserId(user.getId());
         List<String> authProviders = providers.findAllByUser_Id(user.getId()).stream()
                 .map(provider -> provider.getProvider().name()).toList();
-        return new UserResponse(user.getId(), user.getEmail(), user.getFull_name(), user.getStatus().name(),
-                userRoleNames, authProviders, user.getCreated_at());
+        return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getStatus().name(),
+                userRoleNames, authProviders, user.getCreatedAt());
     }
 }

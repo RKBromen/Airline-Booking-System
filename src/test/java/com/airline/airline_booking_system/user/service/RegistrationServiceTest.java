@@ -59,7 +59,7 @@ class RegistrationServiceTest {
         assertEquals("lam@example.com", savedUser.getEmail());
         assertEquals("encoded-password", savedUser.getPassword());
         assertNotEquals("password123", savedUser.getPassword());
-        assertEquals("Lam Nguyen", savedUser.getFull_name());
+        assertEquals("Lam Nguyen", savedUser.getFullName());
         assertEquals(Users.UserStatus.ACTIVE, savedUser.getStatus());
         assertEquals(savedUser.getId(), response.id());
 

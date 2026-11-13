@@ -77,7 +77,7 @@ public class AuthController {
     @GetMapping("/me")
     public CurrentUserResponse me(Authentication authentication) {
         Users user = currentUser(authentication);
-        return new CurrentUserResponse(user.getId(), user.getEmail(), user.getFull_name(), user.getStatus().name(),
+        return new CurrentUserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getStatus().name(),
                 userRoleRepository.findRoleNamesByUserId(user.getId()));
     }
 

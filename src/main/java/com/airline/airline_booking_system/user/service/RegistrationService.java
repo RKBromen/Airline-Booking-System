@@ -50,7 +50,7 @@ public class RegistrationService {
         userRepository.save(user);
         userRoleRepository.save(new UserRoles(new UserRolesId(user.getId(), customerRole.getId()), user, customerRole));
 
-        return new RegisteredUserResponse(user.getId(), user.getEmail(), user.getFull_name(), user.getStatus().name(),
-                java.util.List.of(CUSTOMER_ROLE), user.getCreated_at());
+        return new RegisteredUserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getStatus().name(),
+                java.util.List.of(CUSTOMER_ROLE), user.getCreatedAt());
     }
 }

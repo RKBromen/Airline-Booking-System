@@ -29,7 +29,7 @@ public class Users {
     @Column(name = "password_hash")
     private String password;
     @Column(name = "full_name", nullable = false, length = 150)
-    private String full_name;
+    private String fullName;
 
     public enum UserStatus {
         ACTIVE, BLOCKED, DELETED
@@ -39,23 +39,23 @@ public class Users {
     @Column(nullable = false)
     private UserStatus status;
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Bookings> bookings;
 
-    public Users(String id, String email, String password, String full_name, UserStatus status,
-            LocalDateTime created_at,
-            LocalDateTime updated_at) {
+    public Users(String id, String email, String password, String fullName, UserStatus status,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.full_name = full_name;
+        this.fullName = fullName;
         this.status = status;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public String getId() { return id; }
@@ -64,12 +64,12 @@ public class Users {
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public String getFull_name() { return full_name; }
-    public void setFull_name(String fullName) { this.full_name = fullName; }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
     public UserStatus getStatus() { return status; }
     public void setStatus(UserStatus status) { this.status = status; }
-    public LocalDateTime getCreated_at() { return created_at; }
-    public void setCreated_at(LocalDateTime createdAt) { this.created_at = createdAt; }
-    public LocalDateTime getUpdated_at() { return updated_at; }
-    public void setUpdated_at(LocalDateTime updatedAt) { this.updated_at = updatedAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
