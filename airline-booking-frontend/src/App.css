@@ -48,7 +48,11 @@
   .airport-list-card .ant-table-pagination { padding-inline: 12px; }
   .airport-error { padding: 16px; }
 }
-.site-nav { display: flex; align-items: center; gap: 20px; }
+.site-nav { display: flex; flex: 1; align-items: center; justify-content: flex-end; gap: 20px; }
+.header-account-menu { display: flex; flex: 0 0 auto; }
+.header-menu-button { width: 42px; height: 42px; padding: 0; display: grid; place-items: center; }
+.hamburger-icon { display: flex; flex-direction: column; gap: 4px; }
+.hamburger-icon span { display: block; width: 19px; height: 2px; border-radius: 2px; background: #18302f; }
 .login-link { font-size: 13px; text-decoration: none; }
 .management-page-header { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin: 28px 0; }
 .management-page-header h1 { overflow-wrap: anywhere; }
@@ -70,10 +74,103 @@
 .login-card form { margin-top: 26px; }
 @media (max-width: 640px) {
   .site-header-inner { flex-wrap: wrap; padding-top: 14px; }
-  .site-nav { flex-basis: 100%; justify-content: flex-end; gap: 16px; }
+  .header-account-menu { order: 2; margin-left: auto; }
+  .site-nav { order: 3; flex-basis: 100%; justify-content: flex-start; gap: 16px; overflow-x: auto; }
   .site-nav .nav-link { padding-block: 14px 12px; }
   .management-page-header { flex-direction: column; align-items: flex-start; }
   .page-actions { max-width: 100%; }
   .aircraft-toolbar { padding: 20px 16px; }
   .aircraft-list-card .ant-table-pagination { padding-inline: 12px; }
+}
+
+.auth-provider-actions { width: 100%; }
+.auth-layout { display: flex; justify-content: center; width: 100%; padding-block: 12px; }
+.auth-switch { margin: 22px 0 0; text-align: center; color: #667775; font-size: 14px; }
+.flight-home-intro { padding-top: 48px; }
+.flight-search-card { border-radius: 10px; }
+.flight-search-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(180px, .7fr) auto; gap: 16px; align-items: end; }
+.flight-search-fields .ant-form-item { margin-bottom: 0; min-width: 0; }
+.flight-search-submit { min-height: 40px; }
+.flight-search-error { margin-top: 18px; }
+.flight-search-hint { margin: 22px 0; color: #667775; }
+.flight-results-section { margin-top: 40px; }
+.flight-results-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+.flight-results-heading h2 { margin: 0; color: #18302f; font-size: 22px; }
+.flight-result-list .ant-list-item { padding: 0 0 14px; border: 0; }
+.flight-result-card { width: 100%; border: 1px solid #e1e9e8; box-shadow: 0 3px 18px #18302f04; }
+.flight-result-route { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(170px, auto); align-items: center; gap: 18px; }
+.flight-result-route > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.flight-result-route strong { color: #18302f; font-size: 18px; }
+.flight-time, .flight-result-price span { color: #667775; font-size: 13px; }
+.flight-result-price { text-align: right; }
+.flight-result-price strong { color: #126a68; font-size: 18px; }
+.flight-route-line { color: #126a68; font-size: 22px; }
+.customer-area { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: start; gap: 24px; }
+.customer-nav { display: flex; flex-direction: column; padding: 8px; background: #fff; border: 1px solid #e1e9e8; border-radius: 10px; }
+.customer-nav a { padding: 11px 12px; color: #18302f; border-radius: 7px; text-decoration: none; font-size: 14px; }
+.customer-nav a.active { color: #126a68; background: #edf6f5; font-weight: 650; }
+.customer-nav a:focus-visible { outline: 3px solid #83c4bf; outline-offset: 2px; }
+.customer-content { min-width: 0; }
+.profile-card, .admin-list-card { border-radius: 10px; }
+.account-data-table-scroll { width: 100%; overflow-x: auto; }
+.account-data-table { width: 100%; border: 1px solid #e1e9e8; border-spacing: 0; border-radius: 10px; overflow: hidden; background: #fff; }
+.account-data-table th, .account-data-table td { padding: 16px 20px; border-bottom: 1px solid #edf1f0; text-align: left; vertical-align: middle; }
+.account-data-table tbody th { width: 38%; background: #fbfdfd; color: #667775; font-weight: 600; }
+.account-data-table tbody td { color: #18302f; overflow-wrap: anywhere; }
+.account-data-table tbody tr:last-child th, .account-data-table tbody tr:last-child td { border-bottom: 0; }
+.profile-page-actions { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+.profile-form-card { max-width: 700px; border-radius: 10px; }
+.profile-form-field { display: grid; gap: 8px; margin-bottom: 20px; }
+.profile-form-field > label { color: #18302f; font-size: 14px; }
+.profile-form-error { color: #b42318; font-size: 13px; }
+.profile-form-actions { display: flex; padding-top: 4px; }
+.profile-secondary-link { margin-top: 18px; }
+.provider-note { margin: 0 0 20px; }
+.provider-status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.provider-identity { display: inline-flex; align-items: center; gap: 10px; color: #18302f; }
+.provider-mark { width: 20px; height: 20px; flex: 0 0 20px; }
+.admin-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #edf1f0; }
+.admin-toolbar label { font-size: 13px; font-weight: 650; }
+.admin-status-filter { width: 220px; }
+.admin-toolbar .result-count { margin: 0 0 0 auto; }
+.admin-list-card > .ant-card-body { padding: 0; }
+.admin-list-card .ant-table-pagination { padding-inline: 24px; }
+.role-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.role-card { border-radius: 10px; }
+.management-shell { display: grid; grid-template-columns: 200px minmax(0, 1fr); align-items: start; gap: 24px; }
+.management-sidebars { display: flex; flex-direction: column; gap: 16px; }
+.management-sidebar { display: flex; flex-direction: column; padding: 16px 10px; background: #fff; border: 1px solid #e1e9e8; border-radius: 10px; }
+.management-sidebar .eyebrow { padding: 0 10px; }
+.management-sidebar a { padding: 10px; color: #18302f; border-radius: 7px; text-decoration: none; }
+.management-sidebar a.active { color: #126a68; background: #edf6f5; font-weight: 650; }
+.management-content { min-width: 0; }
+.management-page-actions { display: flex; justify-content: flex-end; margin: 0 0 18px; }
+.roles-table-card > .ant-card-body { padding: 0; }
+
+@media (max-width: 800px) {
+  .flight-search-fields { grid-template-columns: 1fr 1fr; }
+  .flight-search-submit { width: 100%; }
+  .role-card-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+  .flight-home-intro { padding-top: 28px; }
+  .flight-search-fields { grid-template-columns: 1fr; gap: 0; }
+  .flight-search-submit { margin-top: 4px; }
+  .flight-results-section { margin-top: 28px; }
+  .flight-results-heading { flex-direction: column; }
+  .flight-result-route { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; }
+  .flight-result-route > .flight-result-price { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: baseline; text-align: left; border-top: 1px solid #edf1f0; padding-top: 12px; }
+  .customer-area { grid-template-columns: 1fr; gap: 16px; }
+  .customer-nav { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+  .customer-nav a { padding: 9px 10px; }
+  .account-data-table th, .account-data-table td { padding: 12px 10px; }
+  .account-data-table tbody th { width: 36%; }
+  .admin-toolbar { padding: 18px 16px; }
+  .admin-status-filter { width: 100%; }
+  .admin-toolbar .result-count { margin-left: 0; }
+  .admin-list-card .ant-table-pagination { padding-inline: 12px; }
+  .role-card-grid { grid-template-columns: 1fr; }
+  .management-shell { grid-template-columns: 1fr; gap: 16px; }
+  .management-sidebars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 }
