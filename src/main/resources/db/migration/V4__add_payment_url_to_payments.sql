@@ -1,0 +1,2 @@
+ALTER TABLE payments
+ADD COLUMN payment_url VARCHAR(2048) NULL;

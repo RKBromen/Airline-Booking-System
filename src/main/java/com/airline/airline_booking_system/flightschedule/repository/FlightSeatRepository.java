@@ -47,7 +47,26 @@ public interface FlightSeatRepository extends JpaRepository<FlightSeats, String>
   List<FlightSeats> findHeldSeatsByBookingIdForUpdate(
       @Param("bookingId") String bookingId);
 
+  @Query("select s from FlightSeats s where s.flight_schedules.id = :scheduleId")
+  List<FlightSeats> findAllByScheduleId(@Param("scheduleId") String scheduleId);
 
-    @Query("select s from FlightSeats s where s.flight_schedules.id = :scheduleId")
-    List<FlightSeats> findAllByScheduleId(@Param("scheduleId") String scheduleId);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("""
+          SELECT s
+          FROM FlightSeats s
+          WHERE s.bookings.id = :bookingId
+      """)
+  List<FlightSeats> findAllByBookingIdForUpdate(
+      @Param("bookingId") String bookingId);
+
+  @Modifying(flushAutomatically = true)
+  @Query(value = """
+      UPDATE flight_seats
+      SET status = 'BOOKED',
+          held_by_booking_id = NULL,
+          held_until = NULL
+      WHERE held_by_booking_id = :bookingId
+        AND status = 'HELD'
+      """, nativeQuery = true)
+  int bookHeldSeats(@Param("bookingId") String bookingId);
 }

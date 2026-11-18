@@ -3,7 +3,6 @@ package com.airline.airline_booking_system.booking.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +18,11 @@ import com.airline.airline_booking_system.booking.service.BookingService;
 import com.airline.airline_booking_system.payment.dto.PaymentCreateRequest;
 import com.airline.airline_booking_system.payment.dto.PaymentHistoryDTO;
 import com.airline.airline_booking_system.payment.dto.PaymentResponse;
-import com.airline.airline_booking_system.payment.service.PaymentConfirmationService;
+import com.airline.airline_booking_system.payment.service.PaymentInitializationService;
 import com.airline.airline_booking_system.payment.service.PaymentService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,13 +34,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class BookingController {
     private final BookingService bookingService;
     private final PaymentService paymentService;
-    private final PaymentConfirmationService paymentConfirmationService;
+    private final PaymentInitializationService paymentInitializationService;
 
     public BookingController(BookingService bookingService, PaymentService paymentService,
-            PaymentConfirmationService paymentConfirmationService) {
+            PaymentInitializationService paymentInitializationService) {
         this.bookingService = bookingService;
         this.paymentService = paymentService;
-        this.paymentConfirmationService = paymentConfirmationService;
+        this.paymentInitializationService = paymentInitializationService;
     }
 
     @PostMapping
@@ -90,13 +92,28 @@ public class BookingController {
     }
 
     @PostMapping("/{bookingId}/payments")
-    public ResponseEntity<PaymentResponse> postMethodName(@PathVariable("bookingId") String bookingId,
-            @RequestBody PaymentCreateRequest paymentMethod) {
+    public ResponseEntity<PaymentResponse> createPayment(@PathVariable("bookingId") String bookingId,
+            @Valid @RequestBody PaymentCreateRequest request, HttpServletRequest httpRequest) {
         String userId = requestUserIdForTesting();
 
-        PaymentResponse response = paymentConfirmationService.createPendingPayments(bookingId, userId, paymentMethod);
+        String clientIp = getClientIp(httpRequest);
+
+        PaymentResponse response = paymentInitializationService.initializePayment(
+                bookingId,
+                userId,
+                request,
+                clientIp);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    private String getClientIp(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+
+        return request.getRemoteAddr();
+    }
 }

@@ -1,8 +1,10 @@
 package com.airline.airline_booking_system.payment.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Repository;
 import com.airline.airline_booking_system.payment.dto.PaymentDetailDTO;
 import com.airline.airline_booking_system.payment.dto.PaymentHistoryDTO;
 import com.airline.airline_booking_system.payment.entity.Payments;
+
+import jakarta.persistence.LockModeType;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payments, String> {
@@ -35,4 +39,22 @@ public interface PaymentRepository extends JpaRepository<Payments, String> {
                         from payments p, bookings b where p.booking_id = b.id and p.id = :paymentId;
                                                 """, nativeQuery = true)
         PaymentDetailDTO findPaymentDetailDTO(@Param("paymentId") String paymentId);
+
+        Optional<Payments> findByBookings_IdAndStatus(String bookindId, Payments.PaymentStatus status);
+
+        boolean existsByBookings_IdAndStatus(String bookingId, Payments.PaymentStatus status);
+
+        @Lock(LockModeType.PESSIMISTIC_WRITE)
+        @Query("Select p from Payments p where p.id = :paymentId")
+        Optional<Payments> findByIdForUpdate(@Param("paymentId") String paymentId);
+
+        @Lock(LockModeType.PESSIMISTIC_WRITE)
+        @Query("""
+                        SELECT p FROM Payments p
+                        WHERE p.transactionId = :transactionId
+                        """)
+        Optional<Payments> findByTransactionIdForUpdate(
+                        @Param("transactionId") String transactionId);
+
+        Optional<Payments> findByTransactionId(String transactionId);
 }
