@@ -204,14 +204,41 @@ public class VnPayIPNService {
                         && seat.getHeld_until().isAfter(now));
 
         // 17. Confirm booking
+        if (!validSeats) {
+
+            booking.setStatus(Bookings.BookingStatus.CANCELLED);
+            booking.setUpdated_at(now);
+
+            flightSeatRepository.releaseHeldSeats(bookingId);
+
+            bookingRepository.save(booking);
+
+            log.warn(
+                    "Payment successful but seats are no longer available. "
+                            + "BookingId={}, PaymentId={}. Manual refund required.",
+                    bookingId, payment.getId());
+
+            return response("00", "Confirm Success");
+        }
+
+        // 18. Convert HELD seats to BOOKED
+        int updatedSeats = flightSeatRepository.bookHeldSeats(bookingId);
+
+        if (updatedSeats != seats.size()) {
+            throw new IllegalStateException(
+                    "Failed to book all seats. Expected: "
+                            + seats.size() + ", Updated: " + updatedSeats);
+        }
+
+        // 19. Confirm booking
         booking.setStatus(Bookings.BookingStatus.CONFIRMED);
         booking.setUpdated_at(now);
 
         bookingRepository.save(booking);
 
         log.info(
-                "VNPay payment confirmed. BookingId={}, PaymentId={}",
-                bookingId, payment.getId());
+                "VNPay payment confirmed. BookingId={}, PaymentId={}, SeatsBooked={}",
+                bookingId, payment.getId(), updatedSeats);
 
         return response("00", "Confirm Success");
     }
