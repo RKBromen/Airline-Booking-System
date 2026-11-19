@@ -64,7 +64,8 @@ public class AircraftController {
     @PostMapping("/{id}/seats")
     @Operation(summary = "Add a physical seat", description = "ADMIN required. Seat number must be unique within this aircraft. Class: ECONOMY, BUSINESS or FIRST.")
     @ApiResponse(responseCode = "201", description = "Physical seat created")
-    public ResponseEntity<AircraftSeatResponse> addSeat(@PathVariable UUID id, @Valid @RequestBody AircraftSeatRequest request) {
+    public ResponseEntity<AircraftSeatResponse> addSeat(@PathVariable UUID id,
+            @Valid @RequestBody AircraftSeatRequest request) {
         AircraftSeatResponse result = aircraftService.addSeat(id, request);
         return ResponseEntity.status(201).body(result);
     }

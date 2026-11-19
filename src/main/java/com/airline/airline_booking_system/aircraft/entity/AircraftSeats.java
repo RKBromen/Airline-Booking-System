@@ -14,12 +14,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import com.airline.airline_booking_system.aircraft.enums.SeatClass;
 
 @Entity
-@Table(name = "aircraft_seats", uniqueConstraints = @UniqueConstraint(
-        name = "uk_aircraft_seat", columnNames = {"aircraft_id", "seat_number"}))
+@Table(name = "aircraft_seats", uniqueConstraints = @UniqueConstraint(name = "uk_aircraft_seat", columnNames = {
+        "aircraft_id", "seat_number" }))
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AircraftSeats {
     @Id
     @Column(length = 36)

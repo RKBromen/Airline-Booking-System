@@ -68,4 +68,6 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT b FROM Bookings b WHERE b.id = :id")
   Optional<Bookings> findByIdForUpdate(@Param("id") String id);
+
+  Optional<Bookings> findByIdAndUsers_Id(String id, String userId);
 }

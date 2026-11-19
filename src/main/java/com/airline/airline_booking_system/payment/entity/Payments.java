@@ -44,20 +44,25 @@ public class Payments {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;
-    private String transaction_id;
+    @Column(name = "transaction_id", unique = true)
+    private String transactionId;
     @Column(nullable = false)
     private LocalDateTime created_at;
     private LocalDateTime paid_at;
 
+    @Column(name = "payment_url", length = 2048)
+    private String payment_url;
+
     public Payments(String id, Bookings bookings, PaymentMethod payment_method, BigDecimal amount, PaymentStatus status,
-            String transaction_id, LocalDateTime created_at, LocalDateTime paid_at) {
+            String transaction_id, LocalDateTime created_at, LocalDateTime paid_at, String payment_url) {
         this.id = id;
         this.bookings = bookings;
         this.payment_method = payment_method;
         this.amount = amount;
         this.status = status;
-        this.transaction_id = transaction_id;
+        this.transactionId = transaction_id;
         this.created_at = created_at;
         this.paid_at = paid_at;
+        this.payment_url = payment_url;
     }
 }

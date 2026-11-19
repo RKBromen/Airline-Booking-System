@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                     .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
                     .ignoringRequestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/oauth2/**",
-                            "/oauth2/**", "/login/oauth2/**", "/api/v1/users/**"))
+                            "/oauth2/**", "/login/oauth2/**", "/api/v1/users/**", "/api/v1/bookings/**"))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/oauth2/**",
@@ -48,7 +48,8 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/v1/auth/me", "/api/v1/auth/providers", "/api/v1/auth/providers/**", "/api/v1/users/me",
                             "/api/v1/users/me/**").authenticated()
                     .requestMatchers("/api/v1/users", "/api/v1/users/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/v1/airports", "/api/v1/airports/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/airports", "/api/v1/airports/**",
+                            "/api/v1/payments/webhooks/vnpay").permitAll()
                     .requestMatchers("/api/v1/airports", "/api/v1/airports/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/v1/aircrafts", "/api/v1/aircrafts/**").hasAnyRole("ADMIN", "STAFF")
                     .requestMatchers("/api/v1/aircrafts", "/api/v1/aircrafts/**").hasRole("ADMIN")
@@ -62,16 +63,16 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource(
-            @Value("${app.cors.allowed-origin:http://localhost:3000}") String allowedOrigin) {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigin));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+        @Bean
+        CorsConfigurationSource corsConfigurationSource(
+                        @Value("${app.cors.allowed-origin:http://localhost:3000}") String allowedOrigin) {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(List.of(allowedOrigin));
+                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
+                configuration.setAllowCredentials(true);
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 }

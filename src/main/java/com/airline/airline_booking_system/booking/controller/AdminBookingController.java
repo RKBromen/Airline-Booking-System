@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.airline.airline_booking_system.booking.dto.BookingDTO;
-import com.airline.airline_booking_system.booking.entity.Bookings;
 import com.airline.airline_booking_system.booking.service.BookingService;
 
 import java.util.List;
