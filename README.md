@@ -276,7 +276,11 @@ dùng một lần tại `OAUTH2_FRONTEND_REDIRECT_URI` và đổi mã qua
 `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET` trong `.env`. Giá trị mặc định chỉ
 giúp ứng dụng khởi động local, không xác thực được với Google/Facebook.
 
-Nginx frontend hiện chỉ proxy `/api/`. Để chạy trọn luồng OAuth bắt đầu từ
-frontend, cần bổ sung proxy `/oauth2/` và `/login/oauth2/` về backend, đồng thời
-chốt callback URL và forwarded headers tương ứng. Cấu hình hiện tại chưa bao
-gồm các proxy OAuth này.
+Nginx frontend proxy các đường dẫn `/api/`, `/oauth2/` và `/login/oauth2/` về
+backend để hỗ trợ API và luồng OAuth. Khi dùng OAuth thật, cần cấu hình callback
+URL tương ứng trong Google/Facebook và đặt client ID, client secret trong `.env`.
+
+## Nạp dữ liệu mẫu
+
+Sau khi ứng dụng đã chạy và Flyway tạo schema, có thể nạp dữ liệu demo thủ công bằng script `src/main/resources/db/seed/airline_booking_seed.sql` vào database `airline_booking`. Script không tự chạy khi ứng dụng khởi động và hiện không idempotent; chỉ chạy một lần trên database chưa có các bản ghi demo này. Các tài khoản mẫu đang dùng password hash placeholder, cần thay bằng BCrypt hash hợp lệ trước khi đăng nhập.
+
