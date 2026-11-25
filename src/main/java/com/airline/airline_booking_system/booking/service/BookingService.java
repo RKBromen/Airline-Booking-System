@@ -3,6 +3,7 @@ package com.airline.airline_booking_system.booking.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -37,6 +38,8 @@ import com.airline.airline_booking_system.flightschedule.enums.FlightScheduleSta
 import com.airline.airline_booking_system.flightschedule.enums.FlightSeatStatus;
 import com.airline.airline_booking_system.flightschedule.repository.FlightScheduleRepository;
 import com.airline.airline_booking_system.flightschedule.repository.FlightSeatRepository;
+import com.airline.airline_booking_system.outbox.event.BookingCancelledEvent;
+import com.airline.airline_booking_system.outbox.service.OutboxEventService;
 import com.airline.airline_booking_system.user.entity.Users;
 import com.airline.airline_booking_system.user.service.CurrentUserService;
 
@@ -49,18 +52,20 @@ public class BookingService {
         private final FlightSeatRepository flightSeatRepository;
         private final FlightRepository flightRepository;
         private final CurrentUserService currentUserService;
+        private final OutboxEventService outboxEventService;
 
         public BookingService(BookingRepository bookingRepository,
                         BookingPassengerRepository bookingPassengerRepository,
                         FlightScheduleRepository flightScheduleRepository, FlightSeatRepository flightSeatRepository,
                         FlightRepository flightRepository,
-                        CurrentUserService currentUserService) {
+                        CurrentUserService currentUserService, OutboxEventService outboxEventService) {
                 this.bookingRepository = bookingRepository;
                 this.bookingPassengerRepository = bookingPassengerRepository;
                 this.flightScheduleRepository = flightScheduleRepository;
                 this.flightSeatRepository = flightSeatRepository;
                 this.flightRepository = flightRepository;
                 this.currentUserService = currentUserService;
+                this.outboxEventService = outboxEventService;
         }
 
         public FlightSchedules getFlightSchedules(String scheduleId) {
@@ -118,7 +123,7 @@ public class BookingService {
 
                 validateFlightSchedule(schedule);
 
-                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
                 LocalDateTime expiresAt = now.plusMinutes(15);
 
                 // 3. Tìm các ghế, xác minh thuộc cùng lịch bay
@@ -275,35 +280,71 @@ public class BookingService {
         }
 
         public BookingCancelResponse cancelBooking(String bookingId) {
-                // 1. Tìm booking
+
+                // 1. Lấy ID người dùng hiện tại
                 String userId = currentUserService.getCurrentUserId();
 
-                Bookings booking = bookingRepository.findById(bookingId)
-                                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy booking"));
+                // 2. Khóa booking để tránh xử lý đồng thời
+                Bookings booking = bookingRepository.findByIdForUpdate(bookingId)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Không tìm thấy booking"));
 
-                // 2. Kiểm tra quyền sở hữu
+                // 3. Kiểm tra quyền sở hữu
                 if (booking.getUsers() == null
                                 || !booking.getUsers().getId().equals(userId)) {
                         throw new IllegalArgumentException(
                                         "Bạn không có quyền hủy booking này");
                 }
 
-                // 3. Chỉ cho phép hủy booking PENDING
+                // 4. Chỉ cho phép hủy booking PENDING
                 if (booking.getStatus() != Bookings.BookingStatus.PENDING) {
                         throw new IllegalArgumentException(
                                         "Chỉ booking PENDING mới được hủy qua API này");
                 }
 
-                // 4. Giải phóng ghế đang được booking giữ
-                flightSeatRepository.releaseHeldSeats(booking.getId());
+                // 5. Khóa các ghế HELD thuộc booking
+                List<FlightSeats> seats = flightSeatRepository.findHeldSeatsByBookingIdForUpdate(
+                                booking.getId());
 
-                // 5. Cập nhật trạng thái booking
+                // Lưu lại ID ghế trước khi giải phóng
+                List<String> seatIds = seats.stream()
+                                .map(FlightSeats::getId)
+                                .toList();
+
+                // 6. Giải phóng ghế
+                int releasedCount = flightSeatRepository.releaseHeldSeats(booking.getId());
+
+                if (releasedCount != seatIds.size()) {
+                        throw new IllegalStateException(
+                                        "Số lượng ghế được giải phóng không khớp");
+                }
+
+                // 7. Cập nhật trạng thái booking
+                LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
                 booking.setStatus(Bookings.BookingStatus.CANCELLED);
-                booking.setUpdated_at(LocalDateTime.now());
+                booking.setUpdated_at(now);
 
                 bookingRepository.save(booking);
 
-                // 6. Trả response
+                // 8. Tạo BookingCancelledEvent
+                BookingCancelledEvent event = new BookingCancelledEvent(
+                                booking.getId(),
+                                booking.getBookingCode(),
+                                booking.getUsers().getId(),
+                                booking.getFlight_schedules().getId(),
+                                booking.getTotal_amount(),
+                                seatIds,
+                                now);
+
+                // 9. Lưu Outbox Event trong cùng transaction
+                outboxEventService.saveEvent(
+                                booking.getId(),
+                                "BookingCancelledEvent",
+                                "booking-cancelled",
+                                event);
+
+                // 10. Trả response
                 return new BookingCancelResponse(
                                 booking.getId(),
                                 booking.getStatus().name());
@@ -325,7 +366,7 @@ public class BookingService {
                                         "Booking is not pending");
                 }
 
-                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
                 if (booking.getExpires_at() == null ||
                                 !booking.getExpires_at().isAfter(now)) {

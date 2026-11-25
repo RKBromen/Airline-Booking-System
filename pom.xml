@@ -107,6 +107,10 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-json</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -150,6 +154,17 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>12.4.0</version>
+
+				<configuration>
+					<url>jdbc:mysql://localhost:3306/airline_booking</url>
+					<user>root</user>
+					<password>root</password>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

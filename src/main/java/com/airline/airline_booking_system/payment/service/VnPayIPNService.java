@@ -3,6 +3,7 @@ package com.airline.airline_booking_system.payment.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import com.airline.airline_booking_system.booking.repository.BookingRepository;
 import com.airline.airline_booking_system.flightschedule.entity.FlightSeats;
 import com.airline.airline_booking_system.flightschedule.enums.FlightSeatStatus;
 import com.airline.airline_booking_system.flightschedule.repository.FlightSeatRepository;
+import com.airline.airline_booking_system.outbox.event.BookingConfirmedEvent;
+import com.airline.airline_booking_system.outbox.service.OutboxEventService;
 import com.airline.airline_booking_system.payment.dto.VnPayIPNResponse;
 import com.airline.airline_booking_system.payment.entity.Payments;
 import com.airline.airline_booking_system.payment.repository.PaymentRepository;
@@ -31,6 +34,10 @@ public class VnPayIPNService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final FlightSeatRepository flightSeatRepository;
+    private final OutboxEventService outboxEventService;
+
+    private static final String BOOKING_CONFIRMED_EVENT = "BookingConfirmedEvent";
+    private static final String BOOKING_CONFIRMED_TOPIC = "booking-confirmed";
 
     @Value("${vnpay.tmn-code}")
     private String tmnCode;
@@ -138,7 +145,7 @@ public class VnPayIPNService {
             return response("05", "Invalid payment status");
         }
 
-        LocalDateTime now = LocalDateTime.now(VN_ZONE);
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         // 11. Failed transaction
         if (!success) {
@@ -221,6 +228,11 @@ public class VnPayIPNService {
             return response("00", "Confirm Success");
         }
 
+        // Capture seat IDs before updating held seats
+        List<String> seatIds = seats.stream()
+                .map(FlightSeats::getId)
+                .toList();
+
         // 18. Convert HELD seats to BOOKED
         int updatedSeats = flightSeatRepository.bookHeldSeats(bookingId);
 
@@ -239,6 +251,22 @@ public class VnPayIPNService {
         log.info(
                 "VNPay payment confirmed. BookingId={}, PaymentId={}, SeatsBooked={}",
                 bookingId, payment.getId(), updatedSeats);
+
+        // 20. Save BookingConfirmedEvent to Outbox
+        BookingConfirmedEvent event = new BookingConfirmedEvent(
+                booking.getId(),
+                booking.getBookingCode(),
+                booking.getUsers().getId(),
+                booking.getFlight_schedules().getId(),
+                booking.getTotal_amount(),
+                seatIds,
+                now);
+
+        outboxEventService.saveEvent(
+                booking.getId(),
+                BOOKING_CONFIRMED_EVENT,
+                BOOKING_CONFIRMED_TOPIC,
+                event);
 
         return response("00", "Confirm Success");
     }
