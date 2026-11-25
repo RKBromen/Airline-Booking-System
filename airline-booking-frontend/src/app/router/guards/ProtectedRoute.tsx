@@ -3,9 +3,9 @@ import { Navigate, useLocation } from 'react-router'
 import { useAuth } from '../../../features/auth/hooks/useAuth'
 
 /** Mount after the app's initial authApi.refresh() attempt has settled. */
-export function ProtectedRoute({ children }: PropsWithChildren) {
+export function ProtectedRoute({ children, loginPath = '/login' }: PropsWithChildren<{ loginPath?: string }>) {
   const auth = useAuth()
   const location = useLocation()
-  if (!auth.isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />
+  if (!auth.isAuthenticated) return <Navigate to={loginPath} state={{ from: location }} replace />
   return children
 }
