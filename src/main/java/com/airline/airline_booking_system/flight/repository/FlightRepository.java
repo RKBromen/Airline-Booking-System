@@ -37,11 +37,15 @@ public interface FlightRepository extends JpaRepository<Flights, String>, JpaSpe
 
         @Query(value = """
                         SELECT fs.id, f.flight_number, dep.code, arr.code, fs.departure_time, fs.arrival_time, fs.base_price, count(fss.id) as availableSeats
-                        FROM flights f, flight_schedules fs, flight_seats fss, airports dep, airports arr
-                        WHERE f.id = fs.flight_id AND fs.id = fss.flight_schedule_id AND dep.id = f.departure_airport_id AND
-                        arr.id = f.arrival_airport_id AND f.status = 'ACTIVE' AND fs.status = 'SCHEDULED'
-                        AND fss.status = 'AVAILABLE' AND DATE(fs.departure_time) = :date AND
-                        dep.code = :departure AND arr.code = :arrival
+                        FROM flights f
+                        JOIN flight_schedules fs ON fs.flight_id = f.id
+                        JOIN airports dep ON dep.id = f.departure_airport_id
+                        JOIN airports arr ON arr.id = f.arrival_airport_id
+                        LEFT JOIN flight_seats fss ON fss.flight_schedule_id = fs.id AND fss.status = 'AVAILABLE'
+                        WHERE f.status = 'ACTIVE' AND fs.status = 'SCHEDULED'
+                        AND (:date IS NULL OR DATE(fs.departure_time) = :date)
+                        AND (:departure IS NULL OR :departure = '' OR dep.code = :departure)
+                        AND (:arrival IS NULL OR :arrival = '' OR arr.code = :arrival)
                         group by fs.id, f.id
                         ORDER BY fs.departure_time
                         """, nativeQuery = true)

@@ -25,9 +25,9 @@ public class FlightSearchController {
     }
 
     @GetMapping
-    public List<SearchFlight> searchFlights(@RequestParam("departure") String departure,
-            @RequestParam("arrival") String arrival,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public List<SearchFlight> searchFlights(@RequestParam(value = "departure", required = false) String departure,
+            @RequestParam(value = "arrival", required = false) String arrival,
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         // System.out.println("CONTROLLER CALLED: " + departure + " " + arrival + " " +
         // date);
         return service.searchFlights(departure, arrival, date);
