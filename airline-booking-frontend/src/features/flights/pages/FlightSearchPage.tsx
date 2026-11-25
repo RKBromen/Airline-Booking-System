@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Alert, Button, Card, Empty, Form, Input, List, Select, Space, Tag } from 'antd'
-import { useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { ErrorMessage } from '../../../components/ui/ErrorMessage'
 import { airportApi } from '../../airports/api/airport.api'
 import type { AirportResponse } from '../../airports/types/airport.dto'
@@ -9,6 +9,7 @@ import { flightSearchApi } from '../../flight-search/api/flight-search.api'
 import { flightSearchSchema } from '../../flight-search/schemas/flight-search.schema'
 import type { FlightSearchParams } from '../../flight-search/types/flight-search.dto'
 import { queryKeys } from '../../../shared/constants/queryKeys'
+import { routeTo } from '../../../app/router/paths'
 
 function todayLocal() {
   const now = new Date()
@@ -31,7 +32,8 @@ function formatCurrency(value: number) {
 }
 
 export function FlightSearchPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [validationMessage, setValidationMessage] = useState<string | null>(null)
   const [form] = Form.useForm<FlightSearchParams>()
   const rawParams: FlightSearchParams = {
@@ -64,7 +66,7 @@ export function FlightSearchPage() {
       return
     }
     setValidationMessage(null)
-    setSearchParams(value.data)
+    navigate(`/flights?${new URLSearchParams(value.data).toString()}`)
   }
 
   return <>
@@ -110,6 +112,9 @@ export function FlightSearchPage() {
                 <strong>{flight.arrival_id}</strong></div>
               <div className="flight-result-price"><span>{flight.flight_id}</span>
                 <strong>{formatCurrency(flight.base_price)}</strong><span>{flight.seatAvailable} ghế còn</span></div>
+              <Link className="flight-result-action" to={routeTo.flightDetail(flight.id)}>
+                <Button type="primary">Xem chuyến bay</Button>
+              </Link>
             </div>
           </Card>
         </List.Item>} />)}

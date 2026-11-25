@@ -16,6 +16,8 @@ import { AircraftEditPage } from '../../features/aircrafts/pages/AircraftEditPag
 import { RegisterPage } from '../../features/auth/pages/RegisterPage'
 import { OAuthCallbackPage } from '../../features/auth/pages/OAuthCallbackPage'
 import { FlightSearchPage } from '../../features/flights/pages/FlightSearchPage'
+import { FlightDetailPage } from '../../features/flights/pages/FlightDetailPage'
+import { FlightSeatSelectionPage } from '../../features/flights/pages/FlightSeatSelectionPage'
 import { CustomerLayout } from '../layouts/CustomerLayout'
 import { SessionBoundary } from './guards/SessionBoundary'
 import { ProtectedRoute } from './guards/ProtectedRoute'
@@ -40,6 +42,9 @@ export function AppRouter() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path={ROUTES.HOME} element={<FlightSearchPage />} />
+          <Route path={ROUTES.FLIGHTS} element={<FlightSearchPage />} />
+          <Route path={ROUTES.FLIGHT_DETAIL} element={<FlightDetailPage />} />
+          <Route path={ROUTES.FLIGHT_SEATS} element={<FlightSeatSelectionPage />} />
           <Route path={ROUTES.AIRPORTS} element={<AirportListPage />} />
           <Route path={ROUTES.AIRPORT_DETAIL} element={<AirportDetailPage />} />
           <Route element={<AuthLayout />}>

@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: '/', AIRPORTS: '/airports', AIRPORT_DETAIL: '/airports/:id',
+  FLIGHTS: '/flights', FLIGHT_DETAIL: '/flights/:scheduleId', FLIGHT_SEATS: '/flights/:scheduleId/seats',
   LOGIN: '/login', REGISTER: '/register', OAUTH_CALLBACK: '/auth/callback', FORBIDDEN: '/forbidden',
   PROFILE: '/profile', PROFILE_EDIT: '/profile/edit', PROFILE_PASSWORD: '/profile/password',
   PROFILE_LINKED_ACCOUNTS: '/profile/linked-accounts',
@@ -11,6 +12,8 @@ export const ROUTES = {
 } as const
 export const routeTo = {
   airportDetail: (id: string) => `/airports/${encodeURIComponent(id)}`,
+  flightDetail: (id: string) => `/flights/${encodeURIComponent(id)}`,
+  flightSeats: (id: string) => `/flights/${encodeURIComponent(id)}/seats`,
   aircraftDetail: (id: string) => `/management/aircrafts/${encodeURIComponent(id)}`,
   aircraftEdit: (id: string) => `/management/aircrafts/${encodeURIComponent(id)}/edit`,
   aircraftSeats: (id: string) => `/management/aircrafts/${encodeURIComponent(id)}/seats`,
