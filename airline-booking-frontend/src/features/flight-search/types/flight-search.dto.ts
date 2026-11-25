@@ -2,7 +2,7 @@
 import type { SeatClass } from '../../aircrafts/types/aircraft.enums'
 import type { FlightSeatStatus } from '../../flight-schedules/types/flight-schedule.enums'
 
-export interface FlightSearchParams { departure: string; arrival: string; date: string }
+export interface FlightSearchParams { departure?: string; arrival?: string; date?: string }
 export interface FlightSearchItem {
   id: string
   flight_id: string

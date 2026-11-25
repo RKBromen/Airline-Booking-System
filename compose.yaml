@@ -18,7 +18,6 @@ services:
       FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-local-facebook-client-secret}
       OAUTH2_FRONTEND_REDIRECT_URI: ${OAUTH2_FRONTEND_REDIRECT_URI:-http://localhost:3000/auth/callback}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
-      SPRING_FLYWAY_REPAIR: "true"
     depends_on:
       db:
         condition: service_healthy

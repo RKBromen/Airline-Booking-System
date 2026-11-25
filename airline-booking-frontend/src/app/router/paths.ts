@@ -1,6 +1,5 @@
 export const ROUTES = {
   HOME: '/', AIRPORTS: '/airports', AIRPORT_DETAIL: '/airports/:id',
-  FLIGHTS: '/flights', FLIGHT_DETAIL: '/flights/:scheduleId', FLIGHT_SEATS: '/flights/:scheduleId/seats',
   LOGIN: '/login', REGISTER: '/register', OAUTH_CALLBACK: '/auth/callback', FORBIDDEN: '/forbidden',
   PROFILE: '/profile', PROFILE_EDIT: '/profile/edit', PROFILE_PASSWORD: '/profile/password',
   PROFILE_LINKED_ACCOUNTS: '/profile/linked-accounts',
