@@ -43,6 +43,20 @@ services:
       retries: 12
       start_period: 30s
 
+  db-seed:
+    image: mysql:8.4
+    profiles:
+      - seed
+    environment:
+      MYSQL_PWD: ${DB_PASSWORD:-airline_local}
+    volumes:
+      - ./airline_booking_seed_fixed.sql:/seed.sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["mysql --protocol=TCP --host=db --user=airline airline_booking < /seed.sql"]
+
   db-admin:
     image: adminer:latest
     ports:
