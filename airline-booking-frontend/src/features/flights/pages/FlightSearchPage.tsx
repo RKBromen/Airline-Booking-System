@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Alert, Button, Card, Empty, Form, Input, List, Select, Space, Tag } from 'antd'
-import { useSearchParams } from 'react-router'
+import { Alert, Button, Card, Empty, Form, Input, List, Select, Tag } from 'antd'
+import { Link, useSearchParams } from 'react-router'
 import { ErrorMessage } from '../../../components/ui/ErrorMessage'
 import { airportApi } from '../../airports/api/airport.api'
 import type { AirportResponse } from '../../airports/types/airport.dto'
@@ -9,11 +9,7 @@ import { flightSearchApi } from '../../flight-search/api/flight-search.api'
 import { flightSearchSchema } from '../../flight-search/schemas/flight-search.schema'
 import type { FlightSearchParams } from '../../flight-search/types/flight-search.dto'
 import { queryKeys } from '../../../shared/constants/queryKeys'
-
-function todayLocal() {
-  const now = new Date()
-  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-')
-}
+import { routeTo } from '../../../app/router/paths'
 
 function airportLabel(airport: AirportResponse) {
   return `${airport.code} · ${airport.city} — ${airport.name}`
@@ -31,21 +27,23 @@ function formatCurrency(value: number) {
 }
 
 export function FlightSearchPage() {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [validationMessage, setValidationMessage] = useState<string | null>(null)
   const [form] = Form.useForm<FlightSearchParams>()
+  const departure = searchParams.get('departure') ?? ''
+  const arrival = searchParams.get('arrival') ?? ''
+  const date = searchParams.get('date') ?? ''
   const rawParams: FlightSearchParams = {
-    departure: searchParams.get('departure') ?? '',
-    arrival: searchParams.get('arrival') ?? '',
-    date: searchParams.get('date') ?? '',
+    departure,
+    arrival,
+    date,
   }
   const parsed = flightSearchSchema.safeParse(rawParams)
   const searching = parsed.success && Object.values(parsed.data).some(Boolean)
   const searchRequest = parsed.success ? parsed.data : {}
   useEffect(() => {
-    form.setFieldsValue(rawParams)
-  }, [form, rawParams.departure, rawParams.arrival, rawParams.date])
+    form.setFieldsValue({ departure, arrival, date })
+  }, [form, departure, arrival, date])
   const airports = useQuery({
     queryKey: queryKeys.airports.list({}), queryFn: () => airportApi.list(), staleTime: 5 * 60_000,
   })
@@ -106,7 +104,9 @@ export function FlightSearchPage() {
       {results.isError && <ErrorMessage error={results.error} onRetry={() => { void results.refetch() }} retrying={results.isFetching} />}
       {parsed.success && results.isPending && <Card loading className="flight-result-card" />}
       {results.data && (results.data.length === 0
-        ? <Card><Empty description="Không tìm thấy chuyến bay phù hợp với lựa chọn này." /></Card>
+        ? <Card><Empty description={searching
+          ? 'Không tìm thấy chuyến bay phù hợp với lựa chọn này.'
+          : 'Hiện chưa có chuyến bay nào.'} /></Card>
         : <List className="flight-result-list" dataSource={results.data} renderItem={flight => <List.Item>
           <Card className="flight-result-card" bordered={false}>
             <div className="flight-result-route">
