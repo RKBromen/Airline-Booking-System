@@ -1,6 +1,6 @@
 export const ROUTES = {
   HOME: '/', AIRPORTS: '/airports', AIRPORT_DETAIL: '/airports/:id',
-  LOGIN: '/login', REGISTER: '/register', OAUTH_CALLBACK: '/auth/callback', FORBIDDEN: '/forbidden',
+  LOGIN: '/login', ADMIN_LOGIN: '/admin/login', REGISTER: '/register', OAUTH_CALLBACK: '/auth/callback', FORBIDDEN: '/forbidden',
   PROFILE: '/profile', PROFILE_EDIT: '/profile/edit', PROFILE_PASSWORD: '/profile/password',
   PROFILE_LINKED_ACCOUNTS: '/profile/linked-accounts',
   ADMIN_USERS: '/admin/users', ADMIN_USER_NEW: '/admin/users/new',

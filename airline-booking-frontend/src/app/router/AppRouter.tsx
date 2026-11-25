@@ -8,6 +8,7 @@ import { ManagementLayout } from '../layouts/ManagementLayout'
 import { RoleGuard } from './guards/RoleGuard'
 import { ForbiddenPage } from '../../pages/ForbiddenPage'
 import { LoginPage } from '../../features/auth/pages/LoginPage'
+import { AdminLoginPage } from '../../features/auth/pages/AdminLoginPage'
 import { AircraftListPage } from '../../features/aircrafts/pages/AircraftListPage'
 import { AircraftDetailPage } from '../../features/aircrafts/pages/AircraftDetailPage'
 import { AircraftSeatsPage } from '../../features/aircrafts/pages/AircraftSeatsPage'
@@ -44,6 +45,7 @@ export function AppRouter() {
           <Route path={ROUTES.AIRPORT_DETAIL} element={<AirportDetailPage />} />
           <Route element={<AuthLayout />}>
             <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+            <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLoginPage />} />
             <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
             <Route path={ROUTES.OAUTH_CALLBACK} element={<OAuthCallbackPage />} />
           </Route>

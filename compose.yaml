@@ -18,6 +18,9 @@ services:
       FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET:-local-facebook-client-secret}
       OAUTH2_FRONTEND_REDIRECT_URI: ${OAUTH2_FRONTEND_REDIRECT_URI:-http://localhost:3000/auth/callback}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-Quản trị viên}
     depends_on:
       db:
         condition: service_healthy
