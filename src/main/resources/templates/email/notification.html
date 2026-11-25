@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title th:text="${title}">Airline Booking System</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f2f6f6;font-family:Arial,Helvetica,sans-serif;color:#17323a;">
+  <span th:text="${preheader}" style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;mso-hide:all;">Thông báo từ Airline Booking System</span>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f2f6f6;padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;border-spacing:0;background-color:#ffffff;border:1px solid #dce7e7;border-radius:14px;overflow:hidden;">
+          <tr>
+            <td style="background-color:#0f6b69;padding:22px 30px;color:#ffffff;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td width="44" valign="middle" style="width:44px;">
+                    <div style="width:40px;height:40px;line-height:40px;text-align:center;border-radius:10px;background-color:#ffffff;color:#0f6b69;font-size:22px;font-weight:bold;">✈</div>
+                  </td>
+                  <td valign="middle" style="padding-left:12px;color:#ffffff;font-size:18px;font-weight:bold;letter-spacing:.2px;">Airline Booking System</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:34px 34px 30px;">
+              <p style="margin:0 0 10px;color:#0f6b69;font-size:12px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;">Thông báo tài khoản</p>
+              <h1 th:text="${title}" style="margin:0 0 22px;color:#17323a;font-size:26px;line-height:1.3;">Tiêu đề email</h1>
+              <p th:text="${greeting}" style="margin:0 0 14px;color:#17323a;font-size:16px;line-height:1.65;">Xin chào bạn,</p>
+              <p th:text="${message}" style="margin:0;color:#405b62;font-size:15px;line-height:1.75;white-space:pre-line;">Nội dung thông báo.</p>
+              <table th:if="${!#lists.isEmpty(details)}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:24px;border:1px solid #dce7e7;border-radius:10px;border-collapse:separate;border-spacing:0;">
+                <tr th:each="detail,iter : ${details}">
+                  <td th:text="${detail.label}" style="padding:13px 16px;color:#6d8388;font-size:14px;border-bottom:1px solid #e8eeee;">Trường</td>
+                  <td th:text="${detail.value}" align="right" style="padding:13px 16px;color:#17323a;font-size:14px;font-weight:bold;border-bottom:1px solid #e8eeee;">Giá trị</td>
+                </tr>
+              </table>
+              <p style="margin:28px 0 0;color:#6d8388;font-size:13px;line-height:1.6;">Đây là email tự động từ Airline Booking System. Vui lòng không trả lời trực tiếp email này.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:17px 30px;background-color:#f7f9f9;border-top:1px solid #e8eeee;color:#71868a;font-size:12px;line-height:1.5;text-align:center;">© Airline Booking System</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
