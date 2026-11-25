@@ -23,6 +23,20 @@ spring:
         "[spring.json.value.default.type]": "com.airline.airline_booking_system.kafka.event.TestEvent"
     listener:
       ack-mode: record
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   security:
     oauth2:
       client:
@@ -65,3 +79,15 @@ app:
     email: ${BOOTSTRAP_ADMIN_EMAIL:}
     password: ${BOOTSTRAP_ADMIN_PASSWORD:}
     full-name: ${BOOTSTRAP_ADMIN_NAME:Quản trị viên}
+  notifications:
+    email:
+      provider: ${NOTIFICATION_EMAIL_PROVIDER:mock}
+      from: ${MAIL_FROM:}
+    worker:
+      poll-interval-ms: ${NOTIFICATION_WORKER_POLL_INTERVAL_MS:5000}
+    kafka:
+      consumer-group: ${NOTIFICATION_KAFKA_CONSUMER_GROUP:airline-booking-notifications}
+      topics:
+        booking-confirmed: ${BOOKING_CONFIRMED_TOPIC:booking.confirmed}
+        booking-cancelled: ${BOOKING_CANCELLED_TOPIC:booking.cancelled}
+        user-registered: ${USER_REGISTERED_TOPIC:user.registered}

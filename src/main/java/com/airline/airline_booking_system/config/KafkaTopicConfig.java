@@ -12,4 +12,19 @@ public class KafkaTopicConfig {
                 (short) 1
         );
     }
+
+    @Bean
+    public NewTopic bookingConfirmedTopic() {
+        return new NewTopic("booking.confirmed", 3, (short) 1);
+    }
+
+    @Bean
+    public NewTopic bookingCancelledTopic() {
+        return new NewTopic("booking.cancelled", 3, (short) 1);
+    }
+
+    @Bean
+    public NewTopic userRegisteredTopic() {
+        return new NewTopic("user.registered", 3, (short) 1);
+    }
 }
