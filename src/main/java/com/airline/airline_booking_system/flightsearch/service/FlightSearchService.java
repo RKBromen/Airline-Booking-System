@@ -3,6 +3,7 @@ package com.airline.airline_booking_system.flightsearch.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.airline.airline_booking_system.flight.repository.FlightRepository;
@@ -23,13 +24,17 @@ public class FlightSearchService {
         return repository.searchFlight(departure, arrival, date);
     }
 
-    public FlightSeatListResponse seatChart(String schedule_id) {
-        List<FlightSeatResponse> seats = repository.seatingChart(schedule_id);
-        return new FlightSeatListResponse(schedule_id, seats);
+    public FlightSeatListResponse seatChart(String scheduleId) {
+        FlightScheduleDetail schedule = findScheduleById(scheduleId);
+        List<FlightSeatResponse> seats = repository.seatingChart(scheduleId);
+        return new FlightSeatListResponse(schedule.id(), seats);
     }
 
-    public FlightScheduleDetail findScheduleById(String schedule_id) {
-        FlightScheduleDetail response = repository.getScheduleById(schedule_id);
-        return response;
+    public FlightScheduleDetail findScheduleById(String scheduleId) {
+        FlightScheduleDetail schedule = repository.getScheduleById(scheduleId);
+        if (schedule == null || schedule.id() == null) {
+            throw new EntityNotFoundException("Flight schedule not found with id: " + scheduleId);
+        }
+        return schedule;
     }
 }

@@ -125,9 +125,11 @@
 .flight-detail-duration { min-width: 180px; text-align: center; color: #667775; }
 .flight-detail-duration::before { content: ''; display: block; height: 1px; background: #126a68; margin: 0 0 8px; }
 .seat-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
-.flight-seat { min-height: 70px; border: 1px solid #dce7e5; border-radius: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #18302f; }
+.flight-seat { min-height: 96px; padding: 8px; border: 1px solid #dce7e5; border-radius: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #18302f; cursor: pointer; font: inherit; }
 .flight-seat.available { border-color: #83c4bf; background: #f3faf9; }
-.flight-seat.unavailable { background: #f2f4f4; color: #98a4a2; }
+.flight-seat.available:hover, .flight-seat.selected { border-color: #126a68; background: #d9f1ee; }
+.flight-seat.unavailable { background: #f2f4f4; color: #98a4a2; cursor: not-allowed; }
+.seat-selection-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 20px; }
 .customer-area { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: start; gap: 24px; }
 .customer-nav { display: flex; flex-direction: column; padding: 8px; background: #fff; border: 1px solid #e1e9e8; border-radius: 10px; }
 .customer-nav a { padding: 11px 12px; color: #18302f; border-radius: 7px; text-decoration: none; font-size: 14px; }

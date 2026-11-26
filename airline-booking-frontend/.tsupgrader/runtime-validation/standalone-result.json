@@ -1,0 +1,27 @@
+{
+  "planHash": "f01d731e309a8c668c99cca7bf725fc706e07f92796d7620b383827cb4a3b3e9",
+  "phase": "standalone",
+  "recordedAtUtc": "2026-11-25T17:15:14.9993157Z",
+  "retryCount": 1,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": false,
+    "setupDurationMs": 10644,
+    "setupFailureOutput": "setup step 0 \u0027npm\u0027 failed (exit=-4048, timedOut=False)\r\nnpm error code EPERM\r\nnpm error syscall unlink\r\nnpm error path E:\\J2EE_Code\\airline-booking-frontend\\node_modules\\@rolldown\\binding-win32-x64-msvc\\rolldown-binding.win32-x64-msvc.node\r\nnpm error errno -4048\r\nnpm error [Error: EPERM: operation not permitted, unlink \u0027E:\\J2EE_Code\\airline-booking-frontend\\node_modules\\@rolldown\\binding-win32-x64-msvc\\rolldown-binding.win32-x64-msvc.node\u0027] {\r\nnpm error   errno: -4048,\r\nnpm error   code: \u0027EPERM\u0027,\r\nnpm error   syscall: \u0027unlink\u0027,\r\nnpm error   path: \u0027E:\\\\J2EE_Code\\\\airline-booking-frontend\\\\node_modules\\\\@rolldown\\\\binding-win32-x64-msvc\\\\rolldown-binding.win32-x64-msvc.node\u0027\r\nnpm error }\r\nnpm error\r\nnpm error The operation was rejected by your operating system.\r\nnpm error It\u0027s possible that the file was already in use (by a text editor or antivirus),\r\nnpm error or that you lack permissions to access it.\r\nnpm error\r\nnpm error If you believe this might be a permissions issue, please double-check the\r\nnpm error permissions of the file and its containing directories, or try running\r\nnpm error the command again as root/Administrator.\r\nnpm error A complete log of this run can be found in: C:\\Users\\do trong tin\\AppData\\Local\\npm-cache\\_logs\\2026-11-25T17_15_06_207Z-debug-0.log\r\n",
+    "assertions": [],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "ci"
+        ],
+        "cwd": "E:\\J2EE_Code\\airline-booking-frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      }
+    ]
+  }
+}

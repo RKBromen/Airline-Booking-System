@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Breadcrumb, Button, Card, Descriptions, Result, Space } from 'antd'
 import { Link, useParams } from 'react-router'
 import { ErrorMessage } from '../../../components/ui/ErrorMessage'
+import { ApiRequestError } from '../../../shared/api/apiError'
 import { flightSearchApi } from '../../flight-search/api/flight-search.api'
 import { routeTo, ROUTES } from '../../../app/router/paths'
 import { queryKeys } from '../../../shared/constants/queryKeys'
@@ -22,10 +23,20 @@ export function FlightDetailPage() {
   })
 
   if (!scheduleId) return <Result status="404" title="Không tìm thấy chuyến bay" />
+  if (query.isError && query.error instanceof ApiRequestError && query.error.status === 404) {
+    return <Result status="404" title="Không tìm thấy lịch bay"
+      subTitle="Lịch bay có thể đã bị xóa hoặc đường dẫn không hợp lệ."
+      extra={<Link to={ROUTES.FLIGHTS}><Button>Quay lại tìm chuyến bay</Button></Link>} />
+  }
   if (query.isError) return <ErrorMessage error={query.error} onRetry={() => { void query.refetch() }} retrying={query.isFetching} />
   if (query.isPending) return <Card loading className="flight-detail-card" />
 
   const flight = query.data
+  if (!flight?.id || !flight.flightNumber) {
+    return <Result status="404" title="Không tìm thấy lịch bay"
+      subTitle="Lịch bay có thể đã bị xóa hoặc đường dẫn không hợp lệ."
+      extra={<Link to={ROUTES.FLIGHTS}><Button>Quay lại tìm chuyến bay</Button></Link>} />
+  }
   return <>
     <Breadcrumb items={[
       { title: <Link to={ROUTES.FLIGHTS}>Tìm chuyến bay</Link> },

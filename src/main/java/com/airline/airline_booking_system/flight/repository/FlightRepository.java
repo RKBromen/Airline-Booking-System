@@ -59,7 +59,7 @@ public interface FlightRepository extends JpaRepository<Flights, String>, JpaSpe
         List<FlightSeatResponse> seatingChart(@Param("schedule_id") String schedule_id);
 
         @Query(value = """
-                        select fsc.id, f.flight_number, dep.city, dep.country, arr.city, arr.country, fsc.departure_time, fsc.arrival_time,
+                        select fsc.id, f.flight_number, dep.city, dep.name, arr.city, arr.name, fsc.departure_time, fsc.arrival_time,
                         timediff(fsc.arrival_time, fsc.departure_time) as duration, ac.registration_no from
                         flights f, flight_schedules fsc, aircrafts ac, airports dep, airports arr
                         where f.id = fsc.flight_id and ac.id = fsc.aircraft_id and dep.id = f.departure_airport_id
