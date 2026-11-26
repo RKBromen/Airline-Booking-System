@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { PublicLayout } from '../layouts/PublicLayout'
 import { AirportListPage } from '../../features/airports/pages/AirportListPage'
 import { AirportDetailPage } from '../../features/airports/pages/AirportDetailPage'
@@ -19,6 +19,7 @@ import { OAuthCallbackPage } from '../../features/auth/pages/OAuthCallbackPage'
 import { FlightSearchPage } from '../../features/flights/pages/FlightSearchPage'
 import { FlightDetailPage } from '../../features/flights/pages/FlightDetailPage'
 import { FlightSeatSelectionPage } from '../../features/flights/pages/FlightSeatSelectionPage'
+import { FlightPassengerPage } from '../../features/flights/pages/FlightPassengerPage'
 import { CustomerLayout } from '../layouts/CustomerLayout'
 import { SessionBoundary } from './guards/SessionBoundary'
 import { ProtectedRoute } from './guards/ProtectedRoute'
@@ -34,7 +35,7 @@ import { RolesPage } from '../../features/users/pages/RolesPage'
 import { AuthLayout } from '../layouts/AuthLayout'
 
 function ProtectedCustomerLayout() {
-  return <SessionBoundary><ProtectedRoute><CustomerLayout /></ProtectedRoute></SessionBoundary>
+  return <SessionBoundary><ProtectedRoute><RoleGuard roles={['CUSTOMER']}><Outlet /></RoleGuard></ProtectedRoute></SessionBoundary>
 }
 
 export function AppRouter() {
@@ -57,6 +58,9 @@ export function AppRouter() {
           <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
           <Route path="/403" element={<Navigate to={ROUTES.FORBIDDEN} replace />} />
           <Route element={<ProtectedCustomerLayout />}>
+            <Route path={ROUTES.FLIGHT_PASSENGERS} element={<FlightPassengerPage />} />
+          </Route>
+          <Route element={<CustomerLayout />}>
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.PROFILE_EDIT} element={<ProfileEditPage />} />
             <Route path={ROUTES.PROFILE_PASSWORD} element={<ChangePasswordPage />} />

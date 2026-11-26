@@ -24,7 +24,7 @@ export interface BookingDetailResponse {
   id: string
   bookingCode: string
   status: BookingStatus
-  flight: { flightNumber: string; departureAirport: string; arrivalAirport: string; departureTime: string }
+  flight: { flight_number: string; departureAirport: string; arrivalAirport: string; departureTime: string }
   passengers: BookingPassengerResponse[]
   totalAmount: number
   expiresAt: string

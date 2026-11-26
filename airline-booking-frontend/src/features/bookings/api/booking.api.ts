@@ -1,11 +1,13 @@
 import { axiosClient } from '../../../shared/api/axiosClient'
 import { endpoints } from '../../../shared/api/endpoints'
-import type { BookingDetailResponse, CancelBookingResponse, CreateBookingRequest,
-  CreateBookingResponse } from '../types/booking.dto'
+import type {
+  BookingDetailResponse, CancelBookingResponse, CreateBookingRequest,
+  CreateBookingResponse
+} from '../types/booking.dto'
 
 const urls = endpoints.bookings
 /** Design-only. No list envelopes or lookup-by-code response are specified. */
-export const plannedBookingApi = {
+export const bookingApi = {
   create: async (request: CreateBookingRequest) =>
     (await axiosClient.post<CreateBookingResponse>(urls.root, request)).data,
   mine: async () => (await axiosClient.get<unknown>(urls.me)).data,

@@ -1,6 +1,6 @@
 export const ROUTES = {
   HOME: '/', AIRPORTS: '/airports', AIRPORT_DETAIL: '/airports/:id',
-  FLIGHTS: '/flights', FLIGHT_DETAIL: '/flights/:scheduleId', FLIGHT_SEATS: '/flights/:scheduleId/seats',
+  FLIGHTS: '/flights', FLIGHT_DETAIL: '/flights/:scheduleId', FLIGHT_SEATS: '/flights/:scheduleId/seats', FLIGHT_PASSENGERS: '/flights/:scheduleId/passengers',
   LOGIN: '/login', REGISTER: '/register', OAUTH_CALLBACK: '/auth/callback', FORBIDDEN: '/forbidden',
   ADMIN_LOGIN: '/admin/login',
   PROFILE: '/profile', PROFILE_EDIT: '/profile/edit', PROFILE_PASSWORD: '/profile/password',
@@ -15,6 +15,7 @@ export const routeTo = {
   airportDetail: (id: string) => `/airports/${encodeURIComponent(id)}`,
   flightDetail: (id: string) => `/flights/${encodeURIComponent(id)}`,
   flightSeats: (id: string) => `/flights/${encodeURIComponent(id)}/seats`,
+  flightPassengers: (id: string) => `/flights/${encodeURIComponent(id)}/passengers`,
   aircraftDetail: (id: string) => `/management/aircrafts/${encodeURIComponent(id)}`,
   aircraftEdit: (id: string) => `/management/aircrafts/${encodeURIComponent(id)}/edit`,
   aircraftSeats: (id: string) => `/management/aircrafts/${encodeURIComponent(id)}/seats`,

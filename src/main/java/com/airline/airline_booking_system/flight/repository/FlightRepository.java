@@ -18,22 +18,22 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FlightRepository extends JpaRepository<Flights, String>, JpaSpecificationExecutor<Flights> {
-    @Query("""
-            select f.id from Flights f
-            where lower(f.flight_number) = lower(:flightNumber)
-              and (:excludedId is null or f.id <> :excludedId)
-            """)
-    Optional<String> findFlightByNumber(@Param("flightNumber") String flightNumber,
-            @Param("excludedId") String excludedId);
+        @Query("""
+                        select f.id from Flights f
+                        where lower(f.flight_number) = lower(:flightNumber)
+                          and (:excludedId is null or f.id <> :excludedId)
+                        """)
+        Optional<String> findFlightByNumber(@Param("flightNumber") String flightNumber,
+                        @Param("excludedId") String excludedId);
 
-    @Query("""
-            select f.id from Flights f
-            where f.departure_airport_id.id = :departureAirportId
-              and f.arrival_airport_id.id = :arrivalAirportId
-              and (:excludedId is null or f.id <> :excludedId)
-            """)
-    Optional<String> findFlightOnRoute(@Param("departureAirportId") UUID departureAirportId,
-            @Param("arrivalAirportId") UUID arrivalAirportId, @Param("excludedId") String excludedId);
+        @Query("""
+                        select f.id from Flights f
+                        where f.departure_airport_id.id = :departureAirportId
+                          and f.arrival_airport_id.id = :arrivalAirportId
+                          and (:excludedId is null or f.id <> :excludedId)
+                        """)
+        Optional<String> findFlightOnRoute(@Param("departureAirportId") UUID departureAirportId,
+                        @Param("arrivalAirportId") UUID arrivalAirportId, @Param("excludedId") String excludedId);
 
         @Query(value = """
                         SELECT fs.id, f.flight_number, dep.code, arr.code, fs.departure_time, fs.arrival_time, fs.base_price, count(fss.id) as availableSeats
@@ -53,7 +53,7 @@ public interface FlightRepository extends JpaRepository<Flights, String>, JpaSpe
                         @Param("date") LocalDate date);
 
         @Query(value = """
-                        select ais.id, ais.seat_number, ais.seat_class, fs.price, fs.status from flight_schedules fsc, flight_seats fs, aircraft_seats ais
+                        select fs.id, ais.seat_number, ais.seat_class, fs.price, fs.status from flight_schedules fsc, flight_seats fs, aircraft_seats ais
                         where fsc.id = fs.flight_schedule_id and fs.aircraft_seat_id = ais.id and fsc.id = :schedule_id
                                                 """, nativeQuery = true)
         List<FlightSeatResponse> seatingChart(@Param("schedule_id") String schedule_id);

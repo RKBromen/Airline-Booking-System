@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Alert, Breadcrumb, Button, Card, Result, Tag } from 'antd'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { ErrorMessage } from '../../../components/ui/ErrorMessage'
 import { ApiRequestError } from '../../../shared/api/apiError'
 import { flightSearchApi } from '../../flight-search/api/flight-search.api'
@@ -21,6 +21,7 @@ function seatStatusLabel(status: FlightSeatStatus) {
 
 export function FlightSeatSelectionPage() {
   const { scheduleId } = useParams()
+  const navigate = useNavigate()
   const [selection, setSelection] = useState<{ scheduleId: string; seatIds: string[] } | null>(null)
   const selectedSeatIds = selection && selection.scheduleId === scheduleId ? selection.seatIds : []
   const query = useQuery({
@@ -88,6 +89,25 @@ export function FlightSeatSelectionPage() {
               <span>Ghế: {selectedSeats.map(seat => seat.seatNumber).join(', ')}</span>
               <span>Tổng tiền: {formatCurrency(selectedSeats.reduce((total, seat) => total + seat.price, 0))}</span>
               <Button onClick={() => setSelection({ scheduleId, seatIds: [] })}>Bỏ chọn tất cả</Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  const target = routeTo.flightPassengers(scheduleId)
+
+                  console.log('scheduleId:', scheduleId)
+                  console.log('seatIds:', selectedSeatIds)
+                  console.log('target URL:', target)
+
+                  navigate(target, {
+                    state: {
+                      scheduleId,
+                      seatIds: selectedSeatIds,
+                    },
+                  })
+                }}
+              >
+                Tiếp tục
+              </Button>
             </>}
           </section>
           <Alert type="info" showIcon
