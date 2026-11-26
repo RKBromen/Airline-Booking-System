@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Alert, Button, Card, Empty, Form, Input, List, Select, Space, Tag } from 'antd'
-import { useSearchParams } from 'react-router'
+import { Alert, Button, Card, Empty, Form, Input, List, Select, Tag } from 'antd'
+import { Link, useSearchParams } from 'react-router'
 import { ErrorMessage } from '../../../components/ui/ErrorMessage'
 import { airportApi } from '../../airports/api/airport.api'
 import type { AirportResponse } from '../../airports/types/airport.dto'
@@ -9,11 +9,7 @@ import { flightSearchApi } from '../../flight-search/api/flight-search.api'
 import { flightSearchSchema } from '../../flight-search/schemas/flight-search.schema'
 import type { FlightSearchParams } from '../../flight-search/types/flight-search.dto'
 import { queryKeys } from '../../../shared/constants/queryKeys'
-
-function todayLocal() {
-  const now = new Date()
-  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-')
-}
+import { routeTo } from '../../../app/router/paths'
 
 function airportLabel(airport: AirportResponse) {
   return `${airport.code} · ${airport.city} — ${airport.name}`
@@ -34,28 +30,41 @@ export function FlightSearchPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [validationMessage, setValidationMessage] = useState<string | null>(null)
   const [form] = Form.useForm<FlightSearchParams>()
+  const departure = searchParams.get('departure') ?? ''
+  const arrival = searchParams.get('arrival') ?? ''
+  const date = searchParams.get('date') ?? ''
   const rawParams: FlightSearchParams = {
-    departure: searchParams.get('departure') ?? '',
-    arrival: searchParams.get('arrival') ?? '',
-    date: searchParams.get('date') ?? '',
+    departure,
+    arrival,
+    date,
   }
   const parsed = flightSearchSchema.safeParse(rawParams)
-  const searching = parsed.success
-  const searchRequest = parsed.success ? parsed.data : rawParams
+  const searching = parsed.success && Object.values(parsed.data).some(Boolean)
+  const searchRequest = parsed.success ? parsed.data : {}
   useEffect(() => {
-    form.setFieldsValue({ ...rawParams, date: rawParams.date || todayLocal() })
-  }, [form, rawParams.departure, rawParams.arrival, rawParams.date])
+    form.setFieldsValue({ departure, arrival, date })
+  }, [form, departure, arrival, date])
   const airports = useQuery({
     queryKey: queryKeys.airports.list({}), queryFn: () => airportApi.list(), staleTime: 5 * 60_000,
   })
+  const airportByCode = useMemo(
+    () => new Map((airports.data ?? []).map(airport => [airport.code, airport])),
+    [airports.data],
+  )
   const results = useQuery({
     queryKey: queryKeys.search.list(searchRequest),
-    queryFn: () => flightSearchApi.search(searchRequest), enabled: searching, retry: false,
+    queryFn: () => flightSearchApi.search(searchRequest), enabled: parsed.success, retry: false,
   })
   const airportOptions = useMemo(() => (airports.data ?? []).filter(item => item.status === 'ACTIVE')
     .map(item => ({ value: item.code, label: airportLabel(item) })), [airports.data])
-  const selectedDeparture = (airports.data ?? []).find(item => item.code === rawParams.departure)
-  const selectedArrival = (airports.data ?? []).find(item => item.code === rawParams.arrival)
+  const selectedDeparture = rawParams.departure ? airportByCode.get(rawParams.departure) : undefined
+  const selectedArrival = rawParams.arrival ? airportByCode.get(rawParams.arrival) : undefined
+
+  const clearFilters = () => {
+    form.resetFields()
+    setValidationMessage(null)
+    setSearchParams({})
+  }
 
   const submit = (values: FlightSearchParams) => {
     const value = flightSearchSchema.safeParse(values)
@@ -64,56 +73,74 @@ export function FlightSearchPage() {
       return
     }
     setValidationMessage(null)
-    setSearchParams(value.data)
+    const params = new URLSearchParams()
+    if (value.data.departure) params.set('departure', value.data.departure)
+    if (value.data.arrival) params.set('arrival', value.data.arrival)
+    if (value.data.date) params.set('date', value.data.date)
+    setSearchParams(params)
   }
 
   return <>
     <section className="page-intro flight-home-intro">
       <p className="eyebrow">Airline Booking</p>
       <h1>Tìm chuyến bay phù hợp</h1>
-      <p className="muted">Chọn hành trình và ngày khởi hành để tra cứu chuyến bay.</p>
+      <p className="muted">Tra cứu lịch bay và tình trạng ghế từ dữ liệu hệ thống.</p>
     </section>
     <Card className="flight-search-card">
       <Form form={form} layout="vertical" onFinish={submit}>
         <div className="flight-search-fields">
-          <Form.Item label="Điểm đi" name="departure" rules={[{ required: true, message: 'Chọn sân bay khởi hành.' }]}>
-            <Select showSearch optionFilterProp="label" placeholder="Chọn sân bay đi" options={airportOptions} loading={airports.isPending} />
+          <Form.Item label="Điểm đi" name="departure">
+            <Select allowClear showSearch optionFilterProp="label" placeholder="Chọn sân bay đi" options={airportOptions} loading={airports.isPending} />
           </Form.Item>
-          <Form.Item label="Điểm đến" name="arrival" rules={[{ required: true, message: 'Chọn sân bay đến.' }]}>
-            <Select showSearch optionFilterProp="label" placeholder="Chọn sân bay đến" options={airportOptions} loading={airports.isPending} />
+          <Form.Item label="Điểm đến" name="arrival">
+            <Select allowClear showSearch optionFilterProp="label" placeholder="Chọn sân bay đến" options={airportOptions} loading={airports.isPending} />
           </Form.Item>
-          <Form.Item label="Ngày khởi hành" name="date" rules={[{ required: true, message: 'Chọn ngày khởi hành.' }]}>
-            <Input type="date" min={todayLocal()} />
+          <Form.Item label="Ngày khởi hành" name="date">
+            <Input type="date" />
           </Form.Item>
           <Button type="primary" htmlType="submit" className="flight-search-submit">Tìm chuyến bay</Button>
         </div>
+        <Button onClick={clearFilters}>Xóa bộ lọc</Button>
       </Form>
-      {validationMessage && <Alert type="warning" showIcon title={validationMessage} />}
+      {(validationMessage || !parsed.success) && <Alert type="warning" showIcon
+        title={validationMessage ?? 'Bộ lọc trên đường dẫn không hợp lệ. Vui lòng chọn lại hoặc xóa bộ lọc.'} />}
       {airports.isError && <div className="flight-search-error"><ErrorMessage error={airports.error} onRetry={() => { void airports.refetch() }} retrying={airports.isFetching} /></div>}
     </Card>
 
-    {searching && <section className="flight-results-section" aria-live="polite">
-      <div className="flight-results-heading"><div><h2>Kết quả tìm kiếm</h2><p className="muted">
-        {selectedDeparture?.city ?? rawParams.departure} → {selectedArrival?.city ?? rawParams.arrival} · {rawParams.date}
+    <section className="flight-results-section" aria-live="polite">
+      <div className="flight-results-heading"><div><h2>{searching ? 'Kết quả tìm kiếm' : 'Tất cả chuyến bay'}</h2><p className="muted">
+        {searching ? [selectedDeparture?.city ?? rawParams.departure, selectedArrival?.city ?? rawParams.arrival, rawParams.date].filter(Boolean).join(' · ') : 'Lịch bay được tải từ hệ thống. Bạn có thể lọc theo điểm đi, điểm đến hoặc ngày khởi hành.'}
       </p></div>{results.data && <Tag>{results.data.length} chuyến bay</Tag>}</div>
       {results.isError && <ErrorMessage error={results.error} onRetry={() => { void results.refetch() }} retrying={results.isFetching} />}
-      {results.isPending && <Card loading className="flight-result-card" />}
+      {parsed.success && results.isPending && <Card loading className="flight-result-card" />}
       {results.data && (results.data.length === 0
-        ? <Card><Empty description="Không tìm thấy chuyến bay phù hợp với lựa chọn này." /></Card>
+        ? <Card><Empty description={searching
+          ? 'Không có lịch bay trong dữ liệu hệ thống khớp với lựa chọn này.'
+          : 'Hiện chưa có lịch bay nào trong dữ liệu hệ thống.'}>
+          {searching && <Button onClick={clearFilters}>Xóa bộ lọc để xem tất cả lịch bay</Button>}
+        </Empty></Card>
         : <List className="flight-result-list" dataSource={results.data} renderItem={flight => <List.Item>
           <Card className="flight-result-card" bordered={false}>
             <div className="flight-result-route">
               <div><span className="flight-time">{formatDateTime(flight.departure_time)}</span>
-                <strong>{flight.departure_id}</strong></div>
+                <strong>{flight.departure_id}{airportByCode.get(flight.departure_id)?.city
+                  ? ` · ${airportByCode.get(flight.departure_id)?.city}` : ''}</strong>
+                {airportByCode.get(flight.departure_id)?.name && <span>{airportByCode.get(flight.departure_id)?.name}</span>}
+              </div>
               <span className="flight-route-line" aria-hidden="true">→</span>
               <div><span className="flight-time">{formatDateTime(flight.arrival_time)}</span>
-                <strong>{flight.arrival_id}</strong></div>
+                <strong>{flight.arrival_id}{airportByCode.get(flight.arrival_id)?.city
+                  ? ` · ${airportByCode.get(flight.arrival_id)?.city}` : ''}</strong>
+                {airportByCode.get(flight.arrival_id)?.name && <span>{airportByCode.get(flight.arrival_id)?.name}</span>}
+              </div>
               <div className="flight-result-price"><span>{flight.flight_id}</span>
                 <strong>{formatCurrency(flight.base_price)}</strong><span>{flight.seatAvailable} ghế còn</span></div>
+              <Link className="flight-result-action" to={routeTo.flightDetail(flight.id)}>
+                <Button type="primary">Xem chuyến bay</Button>
+              </Link>
             </div>
           </Card>
         </List.Item>} />)}
-    </section>}
-    {!searching && <Space className="flight-search-hint" align="center"><span>Tra cứu chuyến bay theo mã sân bay và ngày khởi hành.</span></Space>}
+    </section>
   </>
 }

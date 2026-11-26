@@ -1,5 +1,5 @@
 .public-layout { min-height: 100svh; display: flex; flex-direction: column; }
-.site-header { background: #fff; border-bottom: 1px solid #e1e9e8; }
+.site-header { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid #e1e9e8; }
 .site-header-inner { max-width: 1200px; margin: auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; min-height: 76px; gap: 24px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 750; text-decoration: none; color: #18302f; letter-spacing: -.5px; }
 .brand-light { font-weight: 400; margin-left: 4px; }
@@ -70,8 +70,21 @@
 .form-error { margin-bottom: 24px; }
 .seat-note { margin: 0 0 24px; }
 .login-card { max-width: 460px; margin: 48px auto; }
+.login-card.admin-login-card { width: min(100%, 460px); }
+.login-card.register-card { width: min(100%, 640px); max-width: 640px; }
 .login-card h1 { font-size: 28px; }
 .login-card form { margin-top: 26px; }
+.login-card .auth-form { display: flex; flex-direction: column; gap: 18px; }
+.login-card .auth-field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; min-width: 0; }
+.login-card .auth-field > label { color: #18302f; font-size: 14px; line-height: 1.4; }
+.login-card .auth-input,
+.login-card .auth-input.ant-input-affix-wrapper { display: flex; width: 100%; min-width: 0; }
+.login-card .auth-input.ant-input { display: block; }
+.login-card .auth-field-help,
+.login-card .auth-field-error { font-size: 13px; line-height: 1.45; }
+.login-card .auth-field-help { color: #667775; }
+.login-card .auth-field-error { color: #b42318; }
+.login-card .auth-form > .ant-btn { margin-top: 2px; }
 @media (max-width: 640px) {
   .site-header-inner { flex-wrap: wrap; padding-top: 14px; }
   .header-account-menu { order: 2; margin-left: auto; }
@@ -105,6 +118,18 @@
 .flight-result-price { text-align: right; }
 .flight-result-price strong { color: #126a68; font-size: 18px; }
 .flight-route-line { color: #126a68; font-size: 22px; }
+.flight-result-action { grid-column: 1 / -1; display: flex; justify-content: flex-end; border-top: 1px solid #edf1f0; padding-top: 14px; }
+.flight-detail-card { border-radius: 10px; }
+.flight-detail-route { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; margin-bottom: 28px; }
+.flight-detail-route .muted { margin: 4px 0 0; }
+.flight-detail-duration { min-width: 180px; text-align: center; color: #667775; }
+.flight-detail-duration::before { content: ''; display: block; height: 1px; background: #126a68; margin: 0 0 8px; }
+.seat-status-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.flight-seat { min-height: 96px; padding: 8px; border: 1px solid #dce7e5; border-radius: 8px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #18302f; cursor: pointer; font: inherit; }
+.flight-seat.available { border-color: #83c4bf; background: #f3faf9; }
+.flight-seat.available:hover, .flight-seat.selected { border-color: #126a68; background: #d9f1ee; }
+.flight-seat.unavailable { background: #f2f4f4; color: #98a4a2; cursor: not-allowed; }
+.seat-selection-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 20px; }
 .customer-area { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: start; gap: 24px; }
 .customer-nav { display: flex; flex-direction: column; padding: 8px; background: #fff; border: 1px solid #e1e9e8; border-radius: 10px; }
 .customer-nav a { padding: 11px 12px; color: #18302f; border-radius: 7px; text-decoration: none; font-size: 14px; }
@@ -161,6 +186,10 @@
   .flight-results-heading { flex-direction: column; }
   .flight-result-route { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; }
   .flight-result-route > .flight-result-price { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: baseline; text-align: left; border-top: 1px solid #edf1f0; padding-top: 12px; }
+  .flight-result-action { justify-content: stretch; }
+  .flight-result-action .ant-btn { width: 100%; }
+  .flight-detail-route { grid-template-columns: 1fr; gap: 12px; }
+  .flight-detail-duration { min-width: 0; text-align: left; }
   .customer-area { grid-template-columns: 1fr; gap: 16px; }
   .customer-nav { flex-direction: row; flex-wrap: wrap; gap: 2px; }
   .customer-nav a { padding: 9px 10px; }

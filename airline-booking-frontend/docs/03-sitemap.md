@@ -102,6 +102,7 @@ Có thể lưu điều kiện tìm chuyến bay trên URL:
 /flights?departure=SGN&arrival=HAN&date=2026-11-20
 ```
 Cách này cho phép người dùng tải lại trang hoặc chia sẻ liên kết mà vẫn giữ được điều kiện tìm kiếm.
+Danh sách kết quả phải lấy từ `GET /search/flights`; sân bay trong bộ lọc và tên thành phố trên kết quả lấy từ `GET /airports`. Không dùng danh sách chuyến bay hardcode hoặc dữ liệu mẫu làm kết quả thay thế. Khi API trả danh sách rỗng, hiển thị trạng thái không có lịch bay phù hợp và cho phép xóa bộ lọc để xem các lịch bay hiện có trong hệ thống.
 ### 3.2. Customer — Đặt vé và thanh toán
 
 | Frontend Route                    | Chức năng                          | API chính                            | Phân công | Deadline |

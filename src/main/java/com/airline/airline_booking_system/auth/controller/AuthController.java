@@ -63,10 +63,16 @@ public class AuthController {
     }
 
     @GetMapping("/oauth2/google")
-    public RedirectView googleLogin() { return new RedirectView("/oauth2/authorization/google"); }
+    public RedirectView googleLogin() { return oauthLogin("google"); }
 
     @GetMapping("/oauth2/facebook")
-    public RedirectView facebookLogin() { return new RedirectView("/oauth2/authorization/facebook"); }
+    public RedirectView facebookLogin() { return oauthLogin("facebook"); }
+
+    private RedirectView oauthLogin(String provider) {
+        // Use a fresh URL so browsers cannot reuse an old cached SPA fallback page.
+        return new RedirectView("/oauth2/authorization/" + provider
+                + "?request=" + java.util.UUID.randomUUID());
+    }
 
     @PostMapping("/oauth2/exchange")
     public ResponseEntity<?> exchangeOAuthCode(@Valid @RequestBody OAuthExchangeRequest request, CsrfToken csrfToken) {

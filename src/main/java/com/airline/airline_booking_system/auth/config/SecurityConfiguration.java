@@ -10,6 +10,10 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -32,7 +36,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http,
+            OAuth2AuthorizationRequestResolver authorizationRequestResolver) throws Exception {
         http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf
@@ -57,10 +62,26 @@ public class SecurityConfiguration {
             .exceptionHandling(exceptions -> exceptions
                     .authenticationEntryPoint((request, response, exception) -> response.sendError(401))
                     .accessDeniedHandler((request, response, exception) -> response.sendError(403)))
-            .oauth2Login(oauth -> oauth.successHandler(successHandler).failureHandler(failureHandler))
+            .oauth2Login(oauth -> oauth
+                    .authorizationEndpoint(endpoint -> endpoint
+                            .authorizationRequestResolver(authorizationRequestResolver))
+                    .successHandler(successHandler).failureHandler(failureHandler))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(httpBasic -> httpBasic.disable());
         return http.build();
+    }
+
+    @Bean
+    OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository, "/oauth2/authorization");
+        resolver.setAuthorizationRequestCustomizer(builder -> builder.attributes(attributes -> {
+            if ("google".equals(attributes.get(OAuth2ParameterNames.REGISTRATION_ID))) {
+                builder.additionalParameters(parameters -> parameters.put("prompt", "select_account"));
+            }
+        }));
+        return resolver;
     }
 
         @Bean
