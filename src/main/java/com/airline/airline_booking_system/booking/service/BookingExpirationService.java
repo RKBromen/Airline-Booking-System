@@ -1,6 +1,7 @@
 package com.airline.airline_booking_system.booking.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -25,7 +26,8 @@ public class BookingExpirationService {
     }
 
     public void processExpiredBookings() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        System.out.println(now);
 
         List<String> bookingIds = bookingRepository.findExpiredBookingIds(
                 Bookings.BookingStatus.PENDING, now, PageRequest.of(0, 100));

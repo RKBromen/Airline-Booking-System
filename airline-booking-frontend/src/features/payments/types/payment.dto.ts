@@ -12,3 +12,12 @@ export interface CreatePaymentResponse {
 }
 // History's paidAt null vs omitted semantics and detail/admin DTOs need confirmation.
 // Keep those entire responses unknown instead of inferring JSON from SQL columns.
+
+export interface PaymentHistoryResponse {
+  id: string
+  paymentMethod: CheckoutPaymentMethod
+  amount: number
+  status: PaymentStatus
+  createdAt: string
+  paidAt: string | null
+}

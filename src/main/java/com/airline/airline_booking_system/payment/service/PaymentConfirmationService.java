@@ -1,6 +1,7 @@
 package com.airline.airline_booking_system.payment.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -36,7 +37,7 @@ public class PaymentConfirmationService {
             throw new IllegalStateException("Booking is not pending");
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         if (booking.getExpires_at() == null || !booking.getExpires_at().isAfter(now)) {
             throw new IllegalStateException("Booking payment has expired");

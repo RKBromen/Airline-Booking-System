@@ -20,6 +20,11 @@ import { FlightSearchPage } from '../../features/flights/pages/FlightSearchPage'
 import { FlightDetailPage } from '../../features/flights/pages/FlightDetailPage'
 import { FlightSeatSelectionPage } from '../../features/flights/pages/FlightSeatSelectionPage'
 import { FlightPassengerPage } from '../../features/flights/pages/FlightPassengerPage'
+import { BookingDetailPage } from '../../features/bookings/pages/BookingDetailPage'
+import { BookingCheckoutPage } from '../../features/bookings/pages/BookingCheckoutPage'
+import { BookingPaymentsPage } from '../../features/bookings/pages/BookingPaymentsPage'
+import { MyBookingsPage } from '../../features/bookings/pages/MyBookingsPage'
+import { PaymentResultPage } from '../../features/payments/pages/PaymentResultPage'
 import { CustomerLayout } from '../layouts/CustomerLayout'
 import { SessionBoundary } from './guards/SessionBoundary'
 import { ProtectedRoute } from './guards/ProtectedRoute'
@@ -58,7 +63,16 @@ export function AppRouter() {
           <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
           <Route path="/403" element={<Navigate to={ROUTES.FORBIDDEN} replace />} />
           <Route element={<ProtectedCustomerLayout />}>
+            {/* Booking */}
             <Route path={ROUTES.FLIGHT_PASSENGERS} element={<FlightPassengerPage />} />
+            <Route path={ROUTES.BOOKING_DETAIL} element={<BookingDetailPage />} />
+            <Route path={ROUTES.BOOKING_CHECKOUT} element={<BookingCheckoutPage />} />
+            <Route path={ROUTES.BOOKING_PAYMENTS} element={<BookingPaymentsPage />} />
+            <Route path={ROUTES.MY_BOOKINGS} element={<MyBookingsPage />} />
+            <Route
+              path={ROUTES.PAYMENT_RESULT}
+              element={<PaymentResultPage />}
+            />
           </Route>
           <Route element={<CustomerLayout />}>
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />

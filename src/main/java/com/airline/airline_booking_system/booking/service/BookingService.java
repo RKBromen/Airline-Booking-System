@@ -256,8 +256,7 @@ public class BookingService {
         }
 
         public BookingDetail getDetail(String bookingId) {
-                Bookings booking = bookingRepository.findById(bookingId)
-                                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                Bookings booking = getOwnedBooking(bookingId);
                 FlightDTO flight = flightRepository.getFlight(bookingId);
                 List<BookingPassengerDTO> passengers = bookingPassengerRepository.getPassenger(bookingId);
                 BookingDetail detail = new BookingDetail(booking.getId(), booking.getBookingCode(),
@@ -372,6 +371,20 @@ public class BookingService {
                                 !booking.getExpires_at().isAfter(now)) {
                         throw new IllegalStateException(
                                         "Booking payment has expired");
+                }
+
+                return booking;
+        }
+
+        private Bookings getOwnedBooking(String bookingId) {
+                Users user = currentUserService.getCurrentUser();
+
+                Bookings booking = bookingRepository.findById(bookingId)
+                                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+                if (!booking.getUsers().getId().equals(user.getId())) {
+                        throw new AccessDeniedException(
+                                        "You are not allowed to access this booking");
                 }
 
                 return booking;

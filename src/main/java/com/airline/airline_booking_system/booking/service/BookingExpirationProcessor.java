@@ -1,6 +1,7 @@
 package com.airline.airline_booking_system.booking.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -37,7 +38,8 @@ public class BookingExpirationProcessor {
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        System.out.println("Time: " + now);
 
         if (booking.getStatus() != Bookings.BookingStatus.PENDING
                 || booking.getExpires_at() == null

@@ -1,6 +1,6 @@
-import { useLocation, Navigate, useParams } from 'react-router'
+import { useLocation, Navigate, useParams, useNavigate } from 'react-router'
 import { useState } from 'react'
-import { ROUTES } from '../../../app/router/paths'
+import { ROUTES, routeTo } from '../../../app/router/paths'
 import { useCreateBooking } from '../../bookings/hooks/useCreateBooking'
 import type { CreateBookingRequest } from '../../bookings/types/booking.dto'
 import { GENDERS } from '../../bookings/types/booking.enums'
@@ -44,6 +44,7 @@ export function FlightPassengerPage() {
 }
 
 function PassengerForm({ scheduleId, seatIds }: { scheduleId: string, seatIds: string[] }) {
+    const navigate = useNavigate()
     const createBooking = useCreateBooking()
 
     const [passengers, setPassengers] = useState<Passenger[]>(
@@ -87,7 +88,7 @@ function PassengerForm({ scheduleId, seatIds }: { scheduleId: string, seatIds: s
 
         createBooking.mutate(request, {
             onSuccess: (data) => {
-                console.log('Booking created:', data)
+                navigate(routeTo.bookingDetail(data.id))
             },
             onError: (error) => {
                 console.error('Create booking failed:', error)
